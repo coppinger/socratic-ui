@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { useGeneratedOptionIcons } from "@/components/socratic-ui/option-icons";
 import { PriorityRank } from "@/components/socratic-ui/priority-rank";
 import { priorityRankQuestionSchema } from "@/components/socratic-ui/schemas";
 
@@ -10,16 +11,20 @@ import type { PlaygroundEntry, RendererProps } from "../registry";
 function PriorityRankRenderer({
   node,
   motion,
+  optionIcons,
 }: RendererProps<"priority-rank">) {
   const [value, setValue] = useState<string[]>([]);
+  const items = useGeneratedOptionIcons(node.props.items, optionIcons?.show);
   return (
     <PriorityRank
       question={node.props.question}
       subtitle={node.props.subtitle}
-      items={node.props.items}
+      items={items}
       value={value}
       onChange={setValue}
       motion={motion}
+      iconLayout={optionIcons?.layout}
+      iconAlignment={optionIcons?.alignment}
     />
   );
 }

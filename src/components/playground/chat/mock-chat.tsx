@@ -9,6 +9,7 @@ import {
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
+import type { OptionIconSettings } from "@/components/socratic-ui/shared";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,12 +31,14 @@ export function MockChat({
   motion,
   density,
   animationKey,
+  optionIcons,
 }: {
   scenario: PlaygroundScenario;
   liveNode: SocraticNode;
   motion: SocraticMotion;
   density: Density;
   animationKey: string;
+  optionIcons: OptionIconSettings;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -56,6 +59,7 @@ export function MockChat({
               liveNode={liveNode}
               motion={motion}
               animationKey={animationKey}
+              optionIcons={optionIcons}
             />
           ))}
         </ConversationContent>
@@ -70,11 +74,13 @@ function ChatMessage({
   liveNode,
   motion,
   animationKey,
+  optionIcons,
 }: {
   message: PlaygroundMessage;
   liveNode: SocraticNode;
   motion: SocraticMotion;
   animationKey: string;
+  optionIcons: OptionIconSettings;
 }) {
   if (message.kind === "text") {
     return (
@@ -92,6 +98,7 @@ function ChatMessage({
       key={animationKey}
       liveNode={liveNode}
       motion={motion}
+      optionIcons={optionIcons}
     />
   );
 }
@@ -99,9 +106,11 @@ function ChatMessage({
 function SocraticChatMessage({
   liveNode,
   motion,
+  optionIcons,
 }: {
   liveNode: SocraticNode;
   motion: SocraticMotion;
+  optionIcons: OptionIconSettings;
 }) {
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +124,11 @@ function SocraticChatMessage({
       {loading ? (
         <LoadingShimmer />
       ) : (
-        <SocraticRenderer node={liveNode} motion={motion} />
+        <SocraticRenderer
+          node={liveNode}
+          motion={motion}
+          optionIcons={optionIcons}
+        />
       )}
     </Message>
   );
@@ -149,12 +162,12 @@ function MockChatInput({ density }: { density: Density }) {
         onSubmit={(event) => event.preventDefault()}
         className="w-[95%]"
       >
-        <div className="rounded-2xl border border-border bg-muted/40 px-3 pb-2 pt-3 shadow-sm">
+        <div className="rounded-2xl border border-border px-3 pb-2 pt-3 shadow-sm">
           <Textarea
             rows={1}
             placeholder="Reply…"
             aria-label="Message"
-            className="min-h-0 w-full resize-none border-0 bg-transparent px-1 pb-2 pt-0.5 text-sm shadow-none focus-visible:ring-0"
+            className="min-h-0 w-full resize-none border-0 bg-transparent px-1 pb-2 pt-0.5 text-sm shadow-none focus-visible:ring-0 dark:bg-transparent"
           />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">

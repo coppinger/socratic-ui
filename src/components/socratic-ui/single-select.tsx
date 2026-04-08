@@ -1,5 +1,7 @@
 "use client";
 
+import type * as React from "react";
+
 import { CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -9,12 +11,16 @@ import {
   MotionItem,
   MotionStage,
   OptionCard,
+  type OptionIconAlignment,
+  type OptionIconLayout,
+  optionListClass,
   SectionLabel,
 } from "./shared";
 
 export type SingleSelectOption = {
   title: string;
   subtitle?: string;
+  icon?: React.ReactNode;
 };
 
 export interface SingleSelectProps {
@@ -30,6 +36,8 @@ export interface SingleSelectProps {
   freeformValue?: string;
   onFreeformChange?: (value: string) => void;
   motion?: SocraticMotion;
+  iconLayout?: OptionIconLayout;
+  iconAlignment?: OptionIconAlignment;
 }
 
 export function SingleSelect({
@@ -43,6 +51,8 @@ export function SingleSelect({
   freeformValue,
   onFreeformChange,
   motion,
+  iconLayout = "horizontal",
+  iconAlignment = "left",
 }: SingleSelectProps) {
   const showFreeform =
     freeformPlaceholder !== undefined && onFreeformChange !== undefined;
@@ -51,7 +61,7 @@ export function SingleSelect({
     <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
-        <MotionStage motion={motion} className="flex flex-col gap-2">
+        <MotionStage motion={motion} className={optionListClass(iconLayout)}>
           {/*
             Tapping an already-selected option deselects it (clears to null).
             This diverges from the reference JSX, which is commit-only — kept
@@ -63,6 +73,9 @@ export function SingleSelect({
               <OptionCard
                 title={option.title}
                 subtitle={option.subtitle}
+                icon={option.icon}
+                iconLayout={iconLayout}
+                iconAlignment={iconAlignment}
                 selected={value === option.title}
                 onSelect={() =>
                   onChange(value === option.title ? null : option.title)

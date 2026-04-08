@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { NegationSelect } from "@/components/socratic-ui/negation-select";
+import { useGeneratedOptionIcons } from "@/components/socratic-ui/option-icons";
 import { negationSelectQuestionSchema } from "@/components/socratic-ui/schemas";
 
 import type { PlaygroundEntry, RendererProps } from "../registry";
@@ -10,16 +11,20 @@ import type { PlaygroundEntry, RendererProps } from "../registry";
 function NegationSelectRenderer({
   node,
   motion,
+  optionIcons,
 }: RendererProps<"negation-select">) {
   const [value, setValue] = useState<string[]>([]);
+  const options = useGeneratedOptionIcons(node.props.options, optionIcons?.show);
   return (
     <NegationSelect
       question={node.props.question}
       subtitle={node.props.subtitle}
-      options={node.props.options}
+      options={options}
       value={value}
       onChange={setValue}
       motion={motion}
+      iconLayout={optionIcons?.layout}
+      iconAlignment={optionIcons?.alignment}
     />
   );
 }

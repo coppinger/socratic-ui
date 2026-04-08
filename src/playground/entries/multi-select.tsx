@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { MultiSelect } from "@/components/socratic-ui/multi-select";
+import { useGeneratedOptionIcons } from "@/components/socratic-ui/option-icons";
 import { multiSelectQuestionSchema } from "@/components/socratic-ui/schemas";
 
 import type { PlaygroundEntry, RendererProps } from "../registry";
@@ -10,17 +11,21 @@ import type { PlaygroundEntry, RendererProps } from "../registry";
 function MultiSelectRenderer({
   node,
   motion,
+  optionIcons,
 }: RendererProps<"multi-select">) {
   const [value, setValue] = useState<string[]>([]);
+  const options = useGeneratedOptionIcons(node.props.options, optionIcons?.show);
   return (
     <MultiSelect
       question={node.props.question}
       subtitle={node.props.subtitle}
-      options={node.props.options}
+      options={options}
       max={node.props.max}
       value={value}
       onChange={setValue}
       motion={motion}
+      iconLayout={optionIcons?.layout}
+      iconAlignment={optionIcons?.alignment}
     />
   );
 }

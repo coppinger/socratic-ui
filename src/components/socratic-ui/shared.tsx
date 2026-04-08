@@ -36,6 +36,30 @@ export function SectionLabel({
   );
 }
 
+export type OptionIconLayout = "horizontal" | "vertical";
+export type OptionIconAlignment = "left" | "center";
+
+/**
+ * Bundled icon-display settings threaded through the playground (rail
+ * → chat → entry renderers). Kept separate from core component props so
+ * `SingleSelect`/etc. stay unaware of the "show" toggle.
+ */
+export type OptionIconSettings = {
+  show: boolean;
+  layout: OptionIconLayout;
+  alignment: OptionIconAlignment;
+};
+
+/**
+ * Container class for a list of option cards. Vertical layout moves to
+ * a 2-col grid so icon-on-top cards don't stretch the full row width.
+ */
+export function optionListClass(layout: OptionIconLayout) {
+  return layout === "vertical"
+    ? "grid grid-cols-2 gap-2"
+    : "flex flex-col gap-2";
+}
+
 export function OptionCard({
   title,
   subtitle,
@@ -44,6 +68,9 @@ export function OptionCard({
   disabled,
   dashed,
   indicator,
+  icon,
+  iconLayout = "horizontal",
+  iconAlignment = "left",
   className,
 }: {
   title: string;
@@ -53,8 +80,15 @@ export function OptionCard({
   disabled?: boolean;
   dashed?: boolean;
   indicator?: React.ReactNode;
+  icon?: React.ReactNode;
+  iconLayout?: OptionIconLayout;
+  iconAlignment?: OptionIconAlignment;
   className?: string;
 }) {
+  // Vertical layout only applies when we actually have an icon to stack
+  // — otherwise there's nothing to rotate and we fall back to horizontal.
+  const isVertical = iconLayout === "vertical" && icon !== undefined;
+  const isCentered = iconAlignment === "center";
   return (
     <button
       type="button"
@@ -62,8 +96,19 @@ export function OptionCard({
       disabled={disabled}
       aria-pressed={selected}
       className={cn(
-        "flex w-full items-center gap-3.5 rounded-xl border bg-card px-4 py-3.5 text-left transition-colors",
+        "relative rounded-xl border bg-card transition-colors",
         "border-border",
+        isVertical
+          ? cn(
+              "flex h-full w-full flex-col gap-3 px-4 pb-4 pt-5",
+              isCentered
+                ? "items-center text-center"
+                : "items-start text-left",
+            )
+          : cn(
+              "flex w-full items-center gap-3.5 px-4 py-3.5",
+              isCentered ? "justify-center text-center" : "text-left",
+            ),
         // Dashed only applies when unselected — selecting snaps it to a solid border.
         !selected && dashed && "border-dashed",
         selected && "border-primary bg-[var(--accent-soft)]",
@@ -71,10 +116,25 @@ export function OptionCard({
         className,
       )}
     >
+      {icon !== undefined ? (
+        <span
+          className={cn(
+            "flex shrink-0 items-center justify-center rounded-lg border transition-colors",
+            isVertical ? "h-12 w-12" : "h-9 w-9",
+            selected
+              ? "border-primary/40 bg-primary/10 text-primary"
+              : "border-border/80 bg-muted/60 text-foreground/70",
+          )}
+          aria-hidden
+        >
+          {icon}
+        </span>
+      ) : null}
       {indicator !== undefined ? (
         <span
           className={cn(
             "flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-[13px] font-bold transition-colors",
+            isVertical && "absolute right-2.5 top-2.5",
             selected
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground",
@@ -83,7 +143,12 @@ export function OptionCard({
           {indicator}
         </span>
       ) : null}
-      <div className="min-w-0 flex-1">
+      <div
+        className={cn(
+          "min-w-0",
+          isVertical ? "w-full" : isCentered ? "flex-initial" : "flex-1",
+        )}
+      >
         <div
           className={cn(
             "text-sm font-semibold leading-tight",
@@ -99,7 +164,13 @@ export function OptionCard({
         ) : null}
       </div>
       {selected && indicator === undefined ? (
-        <span className="shrink-0 text-base text-primary" aria-hidden>
+        <span
+          className={cn(
+            "text-base text-primary",
+            isVertical ? "absolute right-2.5 top-2.5" : "shrink-0",
+          )}
+          aria-hidden
+        >
           ✓
         </span>
       ) : null}

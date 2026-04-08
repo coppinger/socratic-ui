@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { z } from "zod";
 
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
+import type { OptionIconSettings } from "@/components/socratic-ui/shared";
 import type {
   fillBlankQuestionSchema,
   multiSelectQuestionSchema,
@@ -103,6 +104,8 @@ export type ErasedEdgeCasePreset = {
 export type RendererProps<K extends SocraticKind> = {
   node: SocraticNodeOf<K>;
   motion?: SocraticMotion;
+  /** Playground-only display settings (not part of the Zod schema). */
+  optionIcons?: OptionIconSettings;
 };
 
 export type PlaygroundEntry<K extends SocraticKind> = {

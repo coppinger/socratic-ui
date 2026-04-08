@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { useGeneratedOptionIcons } from "@/components/socratic-ui/option-icons";
 import { SingleSelect } from "@/components/socratic-ui/single-select";
 import { singleSelectQuestionSchema } from "@/components/socratic-ui/schemas";
 
@@ -16,22 +17,26 @@ import type { PlaygroundEntry, RendererProps } from "../registry";
 function SingleSelectRenderer({
   node,
   motion,
+  optionIcons,
 }: RendererProps<"single-select">) {
   const [value, setValue] = useState<string | null>(null);
   const [freeformValue, setFreeformValue] = useState("");
   const showFreeform = node.props.freeformPlaceholder !== undefined;
+  const options = useGeneratedOptionIcons(node.props.options, optionIcons?.show);
 
   return (
     <SingleSelect
       question={node.props.question}
       subtitle={node.props.subtitle}
-      options={node.props.options}
+      options={options}
       value={value}
       onChange={setValue}
       freeformPlaceholder={node.props.freeformPlaceholder}
       freeformValue={showFreeform ? freeformValue : undefined}
       onFreeformChange={showFreeform ? setFreeformValue : undefined}
       motion={motion}
+      iconLayout={optionIcons?.layout}
+      iconAlignment={optionIcons?.alignment}
     />
   );
 }

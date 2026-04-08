@@ -1,6 +1,7 @@
 "use client";
 
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
+import type { OptionIconSettings } from "@/components/socratic-ui/shared";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type {
@@ -14,6 +15,7 @@ import type {
 import { ComponentPicker } from "./component-picker";
 import { EdgeCaseButtons } from "./edge-case-buttons";
 import { MotionControls } from "./motion-controls";
+import { OptionControls } from "./option-controls";
 import { PropTweakers } from "./prop-tweakers";
 import { RerollButton } from "./reroll-button";
 import { ScenarioPicker } from "./scenario-picker";
@@ -24,6 +26,7 @@ export function Rail({
   node,
   motion,
   density,
+  optionIcons,
   componentSlug,
   scenarioId,
   onComponentChange,
@@ -32,12 +35,14 @@ export function Rail({
   onMotionChange,
   onMotionPresetSelect,
   onDensityChange,
+  onOptionIconsChange,
   onReroll,
 }: {
   entry: AnyPlaygroundEntry;
   node: SocraticNode;
   motion: SocraticMotion;
   density: Density;
+  optionIcons: OptionIconSettings;
   componentSlug: SocraticKind;
   scenarioId: string;
   onComponentChange: (slug: SocraticKind) => void;
@@ -46,6 +51,7 @@ export function Rail({
   onMotionChange: (next: SocraticMotion) => void;
   onMotionPresetSelect: (next: SocraticMotion) => void;
   onDensityChange: (next: Density) => void;
+  onOptionIconsChange: (next: OptionIconSettings) => void;
   onReroll: () => void;
 }) {
   const handlePropsChange = (nextProps: Record<string, unknown>) => {
@@ -88,6 +94,12 @@ export function Rail({
             onChange={onMotionChange}
             onPresetSelect={onMotionPresetSelect}
           />
+        </Section>
+
+        <Separator />
+
+        <Section title="Options">
+          <OptionControls value={optionIcons} onChange={onOptionIconsChange} />
         </Section>
 
         <Separator />

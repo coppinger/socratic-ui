@@ -1,5 +1,7 @@
 "use client";
 
+import type * as React from "react";
+
 import { CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -9,12 +11,16 @@ import {
   MotionItem,
   MotionStage,
   OptionCard,
+  type OptionIconAlignment,
+  type OptionIconLayout,
+  optionListClass,
   SectionLabel,
 } from "./shared";
 
 export type PriorityRankItem = {
   title: string;
   subtitle?: string;
+  icon?: React.ReactNode;
 };
 
 export interface PriorityRankProps {
@@ -26,6 +32,8 @@ export interface PriorityRankProps {
   onChange: (value: string[]) => void;
   number?: string;
   motion?: SocraticMotion;
+  iconLayout?: OptionIconLayout;
+  iconAlignment?: OptionIconAlignment;
 }
 
 export function PriorityRank({
@@ -36,11 +44,14 @@ export function PriorityRank({
   onChange,
   number,
   motion,
+  iconLayout = "horizontal",
+  iconAlignment = "left",
 }: PriorityRankProps) {
   const ranked = value;
   const itemsByTitle = new Map(items.map((item) => [item.title, item]));
   const rankedSet = new Set(ranked);
   const unranked = items.filter((item) => !rankedSet.has(item.title));
+  const listClass = optionListClass(iconLayout);
 
   const add = (title: string) => onChange([...ranked, title]);
   const remove = (title: string) =>
@@ -53,10 +64,7 @@ export function PriorityRank({
         {ranked.length > 0 ? (
           <MotionStage
             motion={motion}
-            className={cn(
-              "flex flex-col gap-2",
-              unranked.length > 0 && "mb-3.5",
-            )}
+            className={cn(listClass, unranked.length > 0 && "mb-3.5")}
           >
             {ranked.map((title, index) => {
               const item = itemsByTitle.get(title);
@@ -66,6 +74,9 @@ export function PriorityRank({
                   <OptionCard
                     title={item.title}
                     subtitle={item.subtitle}
+                    icon={item.icon}
+                    iconLayout={iconLayout}
+                    iconAlignment={iconAlignment}
                     selected
                     indicator={index + 1}
                     onSelect={() => remove(title)}
@@ -76,12 +87,15 @@ export function PriorityRank({
           </MotionStage>
         ) : null}
         {unranked.length > 0 ? (
-          <MotionStage motion={motion} className="flex flex-col gap-2">
+          <MotionStage motion={motion} className={listClass}>
             {unranked.map((item) => (
               <MotionItem motion={motion} key={item.title}>
                 <OptionCard
                   title={item.title}
                   subtitle={item.subtitle}
+                  icon={item.icon}
+                  iconLayout={iconLayout}
+                  iconAlignment={iconAlignment}
                   selected={false}
                   dashed
                   onSelect={() => add(item.title)}

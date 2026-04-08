@@ -1,5 +1,7 @@
 "use client";
 
+import type * as React from "react";
+
 import { CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -8,12 +10,16 @@ import {
   MotionCard,
   MotionItem,
   MotionStage,
+  type OptionIconAlignment,
+  type OptionIconLayout,
+  optionListClass,
   SectionLabel,
 } from "./shared";
 
 export type NegationSelectOption = {
   title: string;
   subtitle?: string;
+  icon?: React.ReactNode;
 };
 
 export interface NegationSelectProps {
@@ -25,6 +31,8 @@ export interface NegationSelectProps {
   onChange: (value: string[]) => void;
   number?: string;
   motion?: SocraticMotion;
+  iconLayout?: OptionIconLayout;
+  iconAlignment?: OptionIconAlignment;
 }
 
 export function NegationSelect({
@@ -35,6 +43,8 @@ export function NegationSelect({
   onChange,
   number,
   motion,
+  iconLayout = "horizontal",
+  iconAlignment = "left",
 }: NegationSelectProps) {
   const eliminated = new Set(value);
 
@@ -47,14 +57,17 @@ export function NegationSelect({
   };
 
   const remaining = options.length - eliminated.size;
+  const isVertical = iconLayout === "vertical";
+  const isCentered = iconAlignment === "center";
 
   return (
     <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
-        <MotionStage motion={motion} className="flex flex-col gap-2">
+        <MotionStage motion={motion} className={optionListClass(iconLayout)}>
           {options.map((option) => {
             const killed = eliminated.has(option.title);
+            const vertical = isVertical && option.icon !== undefined;
             return (
               <MotionItem motion={motion} key={option.title}>
                 <button
@@ -63,7 +76,20 @@ export function NegationSelect({
                   aria-label={`${killed ? "Restore" : "Eliminate"} ${option.title}`}
                   onClick={() => toggle(option.title)}
                   className={cn(
-                    "flex w-full items-center gap-3.5 rounded-xl border bg-card px-4 py-3.5 text-left transition-colors",
+                    "relative rounded-xl border bg-card transition-colors",
+                    vertical
+                      ? cn(
+                          "flex h-full w-full flex-col gap-3 px-4 pb-4 pt-5",
+                          isCentered
+                            ? "items-center text-center"
+                            : "items-start text-left",
+                        )
+                      : cn(
+                          "flex w-full items-center gap-3.5 px-4 py-3.5",
+                          isCentered
+                            ? "justify-center text-center"
+                            : "text-left",
+                        ),
                     killed
                       ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[var(--negation-soft)] opacity-60"
                       : "border-border",
@@ -71,16 +97,34 @@ export function NegationSelect({
                 >
                 <span
                   className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-sm font-bold transition-colors",
+                    "flex shrink-0 items-center justify-center text-sm font-bold transition-colors",
+                    vertical
+                      ? "h-12 w-12 rounded-lg border"
+                      : option.icon !== undefined
+                        ? "h-9 w-9 rounded-lg border"
+                        : "h-7 w-7 rounded-md",
                     killed
-                      ? "bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
-                      : "bg-muted text-muted-foreground",
+                      ? option.icon !== undefined || vertical
+                        ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
+                        : "bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
+                      : option.icon !== undefined
+                        ? "border-border/80 bg-muted/60 text-foreground/70"
+                        : "bg-muted text-muted-foreground",
                   )}
                   aria-hidden
                 >
-                  {killed ? "✕" : ""}
+                  {killed ? "✕" : (option.icon ?? "")}
                 </span>
-                <div className="min-w-0 flex-1">
+                <div
+                  className={cn(
+                    "min-w-0",
+                    vertical
+                      ? "w-full"
+                      : isCentered
+                        ? "flex-initial"
+                        : "flex-1",
+                  )}
+                >
                   <div
                     className={cn(
                       "text-sm font-semibold leading-tight",

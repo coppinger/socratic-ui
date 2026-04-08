@@ -1,5 +1,7 @@
 "use client";
 
+import type * as React from "react";
+
 import { CardContent } from "@/components/ui/card";
 
 import type { SocraticMotion } from "./motion";
@@ -8,12 +10,16 @@ import {
   MotionItem,
   MotionStage,
   OptionCard,
+  type OptionIconAlignment,
+  type OptionIconLayout,
+  optionListClass,
   SectionLabel,
 } from "./shared";
 
 export type MultiSelectOption = {
   title: string;
   subtitle?: string;
+  icon?: React.ReactNode;
 };
 
 export interface MultiSelectProps {
@@ -27,6 +33,8 @@ export interface MultiSelectProps {
   onChange: (value: string[]) => void;
   number?: string;
   motion?: SocraticMotion;
+  iconLayout?: OptionIconLayout;
+  iconAlignment?: OptionIconAlignment;
 }
 
 export function MultiSelect({
@@ -38,6 +46,8 @@ export function MultiSelect({
   onChange,
   number,
   motion,
+  iconLayout = "horizontal",
+  iconAlignment = "left",
 }: MultiSelectProps) {
   const selected = new Set(value);
 
@@ -60,7 +70,7 @@ export function MultiSelect({
           </span>{" "}
           selected
         </p>
-        <MotionStage motion={motion} className="flex flex-col gap-2">
+        <MotionStage motion={motion} className={optionListClass(iconLayout)}>
           {options.map((option) => {
             const isSelected = selected.has(option.title);
             const atLimit = !isSelected && selected.size >= max;
@@ -69,6 +79,9 @@ export function MultiSelect({
                 <OptionCard
                   title={option.title}
                   subtitle={option.subtitle}
+                  icon={option.icon}
+                  iconLayout={iconLayout}
+                  iconAlignment={iconAlignment}
                   selected={isSelected}
                   disabled={atLimit}
                   onSelect={() => toggle(option.title)}

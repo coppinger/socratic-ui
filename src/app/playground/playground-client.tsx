@@ -8,6 +8,7 @@ import {
   type SocraticMotion,
   subtleMotion,
 } from "@/components/socratic-ui/motion";
+import type { OptionIconSettings } from "@/components/socratic-ui/shared";
 import { MockChat } from "@/components/playground/chat/mock-chat";
 import { Rail } from "@/components/playground/rail/rail";
 import {
@@ -68,6 +69,11 @@ export function PlaygroundClient({
     ...subtleMotion,
   }));
   const [density, setDensity] = useState<Density>("comfy");
+  const [optionIcons, setOptionIcons] = useState<OptionIconSettings>({
+    show: false,
+    layout: "horizontal",
+    alignment: "left",
+  });
   const [animationNonce, setAnimationNonce] = useState(0);
 
   const entry = useMemo(
@@ -162,6 +168,7 @@ export function PlaygroundClient({
             node={node}
             motion={motion}
             density={density}
+            optionIcons={optionIcons}
             componentSlug={componentSlug}
             scenarioId={scenarioId}
             onComponentChange={handleComponentChange}
@@ -170,6 +177,7 @@ export function PlaygroundClient({
             onMotionChange={setMotion}
             onMotionPresetSelect={handleMotionPresetSelect}
             onDensityChange={setDensity}
+            onOptionIconsChange={setOptionIcons}
             onReroll={handleReroll}
           />
         </aside>
@@ -180,6 +188,7 @@ export function PlaygroundClient({
             liveNode={node}
             motion={motion}
             density={density}
+            optionIcons={optionIcons}
             animationKey={`${componentSlug}:${scenarioId}:${animationNonce}`}
           />
         </WorkbenchCanvas>
