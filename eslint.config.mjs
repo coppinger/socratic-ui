@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Canonical design reference — inline-styled JSX kept for visual
+    // reference, not for production. Not linted.
+    "reference/**",
   ]),
 ]);
 
