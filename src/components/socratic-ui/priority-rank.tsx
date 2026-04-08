@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 import { OptionCard, SectionLabel } from "./shared";
 
@@ -41,7 +42,10 @@ export function PriorityRank({
         <SectionLabel number={number} title={question} subtitle={subtitle} />
         {ranked.length > 0 ? (
           <div
-            className={`flex flex-col gap-2 ${unranked.length > 0 ? "mb-3.5" : ""}`}
+            className={cn(
+              "flex flex-col gap-2",
+              unranked.length > 0 && "mb-3.5",
+            )}
           >
             {ranked.map((title, index) => {
               const item = find(title);

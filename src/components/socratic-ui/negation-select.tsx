@@ -52,6 +52,7 @@ export function NegationSelect({
                 key={option.title}
                 type="button"
                 aria-pressed={killed}
+                aria-label={`${killed ? "Restore" : "Eliminate"} ${option.title}`}
                 onClick={() => toggle(option.title)}
                 className={cn(
                   "flex w-full items-center gap-3.5 rounded-xl border bg-card px-4 py-3.5 text-left transition-colors",

@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +17,9 @@ export interface FillBlankProps {
   /**
    * Sentence template. Use `{slot-id}` to mark each blank, e.g.
    * "I want to build a {what} for {who} that helps them {outcome}."
+   *
+   * Literal `{` / `}` are not currently escapable — add an escape syntax if a
+   * caller ever needs to render literal braces inside the template.
    */
   template: string;
   slots: FillBlankSlot[];
@@ -33,8 +34,7 @@ type Segment =
   | { kind: "text"; content: string }
   | { kind: "slot"; id: string };
 
-function parseTemplate(template: string, slots: FillBlankSlot[]): Segment[] {
-  const slotIds = new Set(slots.map((slot) => slot.id));
+function parseTemplate(template: string, slotIds: Set<string>): Segment[] {
   const segments: Segment[] = [];
   const pattern = /\{([^{}]+)\}/g;
   let lastIndex = 0;
@@ -71,14 +71,10 @@ export function FillBlank({
   number,
   completeMessage = "Clear and scoped — that's a strong starting point.",
 }: FillBlankProps) {
-  const segments = React.useMemo(
-    () => parseTemplate(template, slots),
-    [template, slots],
-  );
-  const slotById = React.useMemo(
-    () => Object.fromEntries(slots.map((slot) => [slot.id, slot])),
-    [slots],
-  );
+  // Parse on every render — the template/slots are tiny and the prior memo
+  // never hit because callers pass an inline `slots` literal each render.
+  const slotById = new Map(slots.map((slot) => [slot.id, slot]));
+  const segments = parseTemplate(template, new Set(slotById.keys()));
 
   const setSlot = (id: string, next: string) =>
     onChange({ ...value, [id]: next });
@@ -94,7 +90,7 @@ export function FillBlank({
             if (segment.kind === "text") {
               return <span key={index}>{segment.content}</span>;
             }
-            const slot = slotById[segment.id];
+            const slot = slotById.get(segment.id);
             if (!slot) return null;
             const slotValue = value[slot.id] ?? "";
             return (
@@ -102,6 +98,7 @@ export function FillBlank({
                 key={`${slot.id}-${index}`}
                 type="text"
                 placeholder={slot.placeholder}
+                aria-label={slot.placeholder}
                 value={slotValue}
                 onChange={(event) => setSlot(slot.id, event.target.value)}
                 className={cn(

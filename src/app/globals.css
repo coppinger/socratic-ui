@@ -69,7 +69,8 @@
   --secondary: #f5f3f0;
   --secondary-foreground: #1a1612;
   --muted: #f5f3f0;
-  --muted-foreground: #9c958e;
+  /* #807a74 hits ≥4.5:1 on the white card surface for WCAG AA normal text. */
+  --muted-foreground: #807a74;
   --accent: #c75b2a;
   --accent-foreground: #ffffff;
   --accent-soft: rgba(199, 91, 42, 0.094);

@@ -64,13 +64,14 @@ export function OptionCard({
   return (
     <button
       type="button"
-      onClick={disabled ? undefined : onSelect}
+      onClick={onSelect}
       disabled={disabled}
       aria-pressed={selected}
       className={cn(
         "flex w-full items-center gap-3.5 rounded-xl border bg-card px-4 py-3.5 text-left transition-colors",
         "border-border",
-        dashed && "border-dashed",
+        // Dashed only applies when not selected — selecting a card snaps it to a solid border.
+        !selected && dashed && "border-dashed",
         selected && "border-primary bg-[var(--accent-soft)]",
         disabled && "cursor-default opacity-40",
         className,

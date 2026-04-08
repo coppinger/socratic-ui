@@ -43,6 +43,12 @@ export function SingleSelect({
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
         <div className="flex flex-col gap-2">
+          {/*
+            Tapping an already-selected option deselects it (clears to null).
+            This diverges from the reference JSX, which is commit-only — kept
+            here as an explicit affordance so a user can change their mind
+            without picking something else first.
+          */}
           {options.map((option) => (
             <OptionCard
               key={option.title}
