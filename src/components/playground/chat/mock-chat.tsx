@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, Plus } from "lucide-react";
+import { AudioLines, ChevronDown, Inbox, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
@@ -39,6 +39,9 @@ export function MockChat({
 }) {
   return (
     <div className="flex h-full flex-col">
+      <div className="flex h-9 shrink-0 items-center border-b border-border px-4 font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        Mock chat
+      </div>
       <Conversation className="flex-1">
         <ConversationContent
           className={cn(
@@ -136,39 +139,74 @@ function MockChatInput({ density }: { density: Density }) {
   return (
     <div
       className={cn(
-        "border-t border-border",
-        density === "compact" ? "px-4 py-3" : "px-6 py-4",
+        "mx-auto w-full max-w-2xl px-4",
+        density === "compact" ? "pb-3 pt-1" : "pb-5 pt-2",
       )}
     >
+      {/* w-[95%] mirrors the assistant Message's max-w-[95%] (ai-elements/message.tsx)
+          so the chat input card aligns exactly with the socratic card above it. */}
       <form
         onSubmit={(event) => event.preventDefault()}
-        className="mx-auto flex w-full max-w-2xl items-end gap-2"
+        className="w-[95%]"
       >
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Attach"
-          className="mb-0.5 shrink-0 text-muted-foreground"
-          disabled
-        >
-          <Plus className="size-4" />
-        </Button>
-        <Textarea
-          rows={1}
-          placeholder="Reply to keep the conversation going…"
-          className="min-h-0 flex-1 resize-none border-0 bg-transparent px-1 py-1.5 text-sm shadow-none focus-visible:ring-0"
-          aria-label="Message"
-        />
-        <Button
-          type="submit"
-          size="icon-sm"
-          aria-label="Send"
-          className="mb-0.5 shrink-0"
-          disabled
-        >
-          <ArrowUp className="size-4" />
-        </Button>
+        <div className="rounded-2xl border border-border bg-muted/40 px-3 pb-2 pt-3 shadow-sm">
+          <Textarea
+            rows={1}
+            placeholder="Reply…"
+            aria-label="Message"
+            className="min-h-0 w-full resize-none border-0 bg-transparent px-1 pb-2 pt-0.5 text-sm shadow-none focus-visible:ring-0"
+          />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Attach"
+                className="text-muted-foreground"
+                disabled
+              >
+                <Plus className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Add context"
+                className="bg-accent text-foreground"
+                disabled
+              >
+                <Inbox className="size-4" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-label="Model picker"
+                disabled
+              >
+                <span className="text-foreground">Opus 4.6</span>
+                <span className="text-muted-foreground">Extended</span>
+                <ChevronDown className="size-3 text-muted-foreground" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Voice input"
+                className="text-muted-foreground"
+                disabled
+              >
+                <AudioLines className="size-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        <p className="mt-2 text-center text-[11px] text-muted-foreground">
+          Claude is AI and can make mistakes. Please double-check responses.
+        </p>
       </form>
     </div>
   );
