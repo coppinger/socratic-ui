@@ -1,64 +1,155 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+import { FillBlank } from "@/components/socratic-ui/fill-blank";
+import { MultiSelect } from "@/components/socratic-ui/multi-select";
+import { NegationSelect } from "@/components/socratic-ui/negation-select";
+import { PriorityRank } from "@/components/socratic-ui/priority-rank";
+import { SingleSelect } from "@/components/socratic-ui/single-select";
 
 export default function Home() {
+  const [setup, setSetup] = useState<string | null>(null);
+  const [setupNote, setSetupNote] = useState("");
+  const [priorities, setPriorities] = useState<string[]>([]);
+  const [ranking, setRanking] = useState<string[]>([]);
+  const [pitch, setPitch] = useState<Record<string, string>>({});
+  const [eliminated, setEliminated] = useState<string[]>([]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-dvh bg-background">
+      <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-5 pb-20 pt-10">
+        <header className="mb-2">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Socratic UI
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+            Structured input components for AI chat interfaces. The five core
+            patterns below replace freeform text with low-friction, low-cognitive-load
+            elicitation.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </header>
+
+        <SingleSelect
+          number="01"
+          question="How are you building this product?"
+          subtitle="Pick the option that best describes your setup"
+          options={[
+            {
+              title: "Solo founder",
+              subtitle: "Building alone, wearing all the hats",
+            },
+            {
+              title: "Co-founding team",
+              subtitle: "Two or more founders splitting responsibilities",
+            },
+            {
+              title: "Within a company",
+              subtitle: "Internal team with organisational backing",
+            },
+            {
+              title: "Agency / consultancy",
+              subtitle: "Building on behalf of a client",
+            },
+          ]}
+          value={setup}
+          onChange={setSetup}
+          freeformPlaceholder="Any extra context…"
+          freeformValue={setupNote}
+          onFreeformChange={setSetupNote}
+        />
+
+        <MultiSelect
+          number="02"
+          question="What matters most right now?"
+          subtitle="Choose up to 3 priorities to guide your plan"
+          max={3}
+          options={[
+            { title: "Speed to market", subtitle: "Ship fast, iterate later" },
+            { title: "Polish & quality", subtitle: "Get it right the first time" },
+            { title: "Low cost", subtitle: "Minimise spend wherever possible" },
+            { title: "Scalability", subtitle: "Build for growth from day one" },
+            { title: "Simplicity", subtitle: "Keep the stack and scope tight" },
+            {
+              title: "Flexibility",
+              subtitle: "Stay adaptable as requirements shift",
+            },
+          ]}
+          value={priorities}
+          onChange={setPriorities}
+        />
+
+        <PriorityRank
+          number="03"
+          question="Rank what to tackle first"
+          subtitle="Tap items in the order you'd prioritise them"
+          items={[
+            {
+              title: "User research",
+              subtitle: "Validate the problem and audience",
+            },
+            {
+              title: "Technical architecture",
+              subtitle: "Choose stack, infra, and data model",
+            },
+            {
+              title: "Visual design",
+              subtitle: "Define the brand and UI direction",
+            },
+            { title: "Go-to-market", subtitle: "Plan distribution and launch" },
+            { title: "Funding", subtitle: "Secure budget or investment" },
+          ]}
+          value={ranking}
+          onChange={setRanking}
+        />
+
+        <FillBlank
+          number="04"
+          question="Describe it in one sentence"
+          subtitle="Fill in the blanks — constraints spark clarity"
+          template="I want to build a {what} for {who} that helps them {outcome}."
+          slots={[
+            { id: "what", placeholder: "product type" },
+            { id: "who", placeholder: "audience" },
+            { id: "outcome", placeholder: "outcome" },
+          ]}
+          value={pitch}
+          onChange={setPitch}
+        />
+
+        <NegationSelect
+          number="05"
+          question="What do you definitely NOT need?"
+          subtitle="Eliminate what's out of scope — it's easier than picking what's in"
+          options={[
+            {
+              title: "Complex onboarding",
+              subtitle: "Multi-step signup, email verification, profile setup",
+            },
+            {
+              title: "Social features",
+              subtitle: "Feeds, comments, likes, followers",
+            },
+            {
+              title: "Real-time collaboration",
+              subtitle: "Live cursors, co-editing, presence",
+            },
+            {
+              title: "Offline support",
+              subtitle: "Service workers, local storage sync",
+            },
+            {
+              title: "Internationalisation",
+              subtitle: "Multi-language, RTL, locale-aware formatting",
+            },
+            {
+              title: "Custom reporting",
+              subtitle: "User-defined dashboards and data views",
+            },
+          ]}
+          value={eliminated}
+          onChange={setEliminated}
+        />
       </main>
     </div>
   );

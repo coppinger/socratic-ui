@@ -1,0 +1,123 @@
+"use client";
+
+import * as React from "react";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+import { SectionLabel, SuccessSummary } from "./shared";
+
+export type FillBlankSlot = {
+  /** Stable identifier used as a key in `value`. */
+  id: string;
+  placeholder: string;
+};
+
+export interface FillBlankProps {
+  question: string;
+  subtitle?: string;
+  /**
+   * Sentence template. Use `{slot-id}` to mark each blank, e.g.
+   * "I want to build a {what} for {who} that helps them {outcome}."
+   */
+  template: string;
+  slots: FillBlankSlot[];
+  value: Record<string, string>;
+  onChange: (value: Record<string, string>) => void;
+  number?: string;
+  /** Optional summary text shown when every slot is filled. */
+  completeMessage?: string;
+}
+
+type Segment =
+  | { kind: "text"; content: string }
+  | { kind: "slot"; id: string };
+
+function parseTemplate(template: string, slots: FillBlankSlot[]): Segment[] {
+  const slotIds = new Set(slots.map((slot) => slot.id));
+  const segments: Segment[] = [];
+  const pattern = /\{([^{}]+)\}/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(template)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({
+        kind: "text",
+        content: template.slice(lastIndex, match.index),
+      });
+    }
+    if (slotIds.has(match[1])) {
+      segments.push({ kind: "slot", id: match[1] });
+    } else {
+      segments.push({ kind: "text", content: match[0] });
+    }
+    lastIndex = pattern.lastIndex;
+  }
+
+  if (lastIndex < template.length) {
+    segments.push({ kind: "text", content: template.slice(lastIndex) });
+  }
+  return segments;
+}
+
+export function FillBlank({
+  question,
+  subtitle,
+  template,
+  slots,
+  value,
+  onChange,
+  number,
+  completeMessage = "Clear and scoped — that's a strong starting point.",
+}: FillBlankProps) {
+  const segments = React.useMemo(
+    () => parseTemplate(template, slots),
+    [template, slots],
+  );
+  const slotById = React.useMemo(
+    () => Object.fromEntries(slots.map((slot) => [slot.id, slot])),
+    [slots],
+  );
+
+  const setSlot = (id: string, next: string) =>
+    onChange({ ...value, [id]: next });
+
+  const allFilled = slots.every((slot) => (value[slot.id] ?? "").trim() !== "");
+
+  return (
+    <Card className="gap-4 px-7 py-6">
+      <CardContent className="px-0">
+        <SectionLabel number={number} title={question} subtitle={subtitle} />
+        <div className="text-base leading-[2.4] text-foreground">
+          {segments.map((segment, index) => {
+            if (segment.kind === "text") {
+              return <span key={index}>{segment.content}</span>;
+            }
+            const slot = slotById[segment.id];
+            if (!slot) return null;
+            const slotValue = value[slot.id] ?? "";
+            return (
+              <input
+                key={`${slot.id}-${index}`}
+                type="text"
+                placeholder={slot.placeholder}
+                value={slotValue}
+                onChange={(event) => setSlot(slot.id, event.target.value)}
+                className={cn(
+                  "mx-1 inline-block min-w-[100px] border-0 border-b-2 bg-transparent px-1 py-0.5 text-base font-semibold text-primary outline-hidden transition-colors",
+                  slotValue ? "border-primary" : "border-border",
+                  "placeholder:font-normal placeholder:text-muted-foreground/70",
+                )}
+                style={{
+                  width: `${Math.max(100, slotValue.length * 10 + 24)}px`,
+                }}
+              />
+            );
+          })}
+        </div>
+        {allFilled ? <SuccessSummary>{completeMessage}</SuccessSummary> : null}
+      </CardContent>
+    </Card>
+  );
+}
