@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function DocsHeader() {
   return (
@@ -31,6 +32,7 @@ export function DocsHeader() {
           Components
         </Link>
       </nav>
+      <ThemeToggle className="ml-auto" />
     </header>
   );
 }

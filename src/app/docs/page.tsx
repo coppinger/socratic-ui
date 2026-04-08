@@ -51,6 +51,7 @@ export default function DocsIntroPage() {
         <div>
           <Button
             render={<Link href="/docs/components" />}
+            nativeButton={false}
             variant="default"
             className="gap-1.5"
           >

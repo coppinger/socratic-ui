@@ -100,6 +100,51 @@
   --sidebar-ring: #c75b2a;
 }
 
+.dark {
+  /* Warm dark surface palette — keeps the brown/cream character of the
+     light theme but inverts luminance. Orange accent is lifted slightly
+     so it retains punch on dark backgrounds. */
+  --background: #0f0d0b;
+  --foreground: #faf9f7;
+  --card: #181513;
+  --card-foreground: #faf9f7;
+  --popover: #181513;
+  --popover-foreground: #faf9f7;
+  --primary: #d96935;
+  --primary-foreground: #ffffff;
+  --secondary: #24201c;
+  --secondary-foreground: #faf9f7;
+  --muted: #24201c;
+  /* #a8a099 on #181513 ≈ 7:1 (AAA) for secondary text on card surfaces. */
+  --muted-foreground: #a8a099;
+  --accent: #d96935;
+  --accent-foreground: #ffffff;
+  --accent-soft: rgba(217, 105, 53, 0.16);
+  --success: #3fa074;
+  --success-foreground: #ffffff;
+  --success-soft: rgba(63, 160, 116, 0.14);
+  --negation: #e04c40;
+  --negation-soft: rgba(224, 76, 64, 0.14);
+  --text-soft: #8f8782;
+  --destructive: #e04c40;
+  --border: #2e2925;
+  --input: #2e2925;
+  --ring: #d96935;
+  --chart-1: #d96935;
+  --chart-2: #3fa074;
+  --chart-3: #8f8782;
+  --chart-4: #5e5955;
+  --chart-5: #faf9f7;
+  --sidebar: #0f0d0b;
+  --sidebar-foreground: #faf9f7;
+  --sidebar-primary: #d96935;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #24201c;
+  --sidebar-accent-foreground: #faf9f7;
+  --sidebar-border: #2e2925;
+  --sidebar-ring: #d96935;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
