@@ -1,0 +1,185 @@
+"use client";
+
+import { useState } from "react";
+
+import { SingleSelect } from "@/components/socratic-ui/single-select";
+import { singleSelectQuestionSchema } from "@/components/socratic-ui/schemas";
+
+import type { PlaygroundEntry, RendererProps } from "../registry";
+
+/**
+ * Renders the real `SingleSelect` and owns its local answer state. The
+ * parent in `socratic-renderer` keys this on the active scenario id so
+ * switching scenarios resets state, while in-place tweaker edits keep
+ * the current selection.
+ */
+function SingleSelectRenderer({
+  node,
+  motion,
+}: RendererProps<"single-select">) {
+  const [value, setValue] = useState<string | null>(null);
+  const [freeformValue, setFreeformValue] = useState("");
+  const showFreeform = node.props.freeformPlaceholder !== undefined;
+
+  return (
+    <SingleSelect
+      question={node.props.question}
+      subtitle={node.props.subtitle}
+      options={node.props.options}
+      value={value}
+      onChange={setValue}
+      freeformPlaceholder={node.props.freeformPlaceholder}
+      freeformValue={showFreeform ? freeformValue : undefined}
+      onFreeformChange={showFreeform ? setFreeformValue : undefined}
+      motion={motion}
+    />
+  );
+}
+
+export const singleSelectEntry: PlaygroundEntry<"single-select"> = {
+  slug: "single-select",
+  label: "Single Select",
+  description:
+    "Pick one option from a list, with an optional freeform note for extra context.",
+  schema: singleSelectQuestionSchema,
+  Renderer: SingleSelectRenderer,
+  tweakers: [
+    {
+      kind: "string",
+      path: "question",
+      label: "Question",
+      multiline: true,
+    },
+    {
+      kind: "string",
+      path: "subtitle",
+      label: "Subtitle",
+      placeholder: "(none)",
+    },
+    {
+      kind: "options-list",
+      path: "options",
+      label: "Options",
+      min: 2,
+      max: 12,
+    },
+    {
+      kind: "string",
+      path: "freeformPlaceholder",
+      label: "Freeform placeholder",
+      placeholder: "(off — leave empty to hide textarea)",
+    },
+  ],
+  scenarios: [
+    {
+      id: "travel",
+      label: "Travel planning",
+      description: "Picking a destination for a long weekend.",
+      messages: [
+        {
+          id: "u1",
+          role: "user",
+          kind: "text",
+          text: "I have a four-day weekend coming up and I want to get away somewhere I haven't been before. Help me decide.",
+        },
+        {
+          id: "a1",
+          role: "assistant",
+          kind: "text",
+          text: "Love that. Quick question to narrow it down — what kind of vibe are you after?",
+        },
+        {
+          id: "a2",
+          role: "assistant",
+          kind: "socratic",
+          node: {
+            kind: "single-select",
+            props: {
+              question: "What kind of trip are you after?",
+              subtitle: "Pick the one that pulls at you most.",
+              options: [
+                {
+                  title: "Coastal escape",
+                  subtitle: "Salt air, slow mornings, fresh seafood.",
+                },
+                {
+                  title: "Mountain reset",
+                  subtitle: "Hikes, big skies, no agenda.",
+                },
+                {
+                  title: "City to explore",
+                  subtitle: "Museums, neighborhoods, late dinners.",
+                },
+                {
+                  title: "Spa & stillness",
+                  subtitle: "A weekend that ends with you exhaling.",
+                },
+              ],
+              freeformPlaceholder: "Or describe something else…",
+            },
+          },
+        },
+      ],
+    },
+  ],
+  edgeCases: [
+    {
+      id: "min-options",
+      label: "2 options",
+      apply: (node) => ({
+        ...node,
+        props: {
+          ...node.props,
+          options: node.props.options.slice(0, 2),
+        },
+      }),
+    },
+    {
+      id: "many-options",
+      label: "10 options",
+      apply: (node) => ({
+        ...node,
+        props: {
+          ...node.props,
+          options: Array.from({ length: 10 }, (_, i) => ({
+            title: `Option ${i + 1}`,
+            subtitle: `Description for option ${i + 1}`,
+          })),
+        },
+      }),
+    },
+    {
+      id: "long-titles",
+      label: "Long titles",
+      apply: (node) => ({
+        ...node,
+        props: {
+          ...node.props,
+          options: node.props.options.map((opt) => ({
+            ...opt,
+            title: `${opt.title} — with a much longer descriptive title that wraps onto two lines`,
+          })),
+        },
+      }),
+    },
+    {
+      id: "no-subtitles",
+      label: "No subtitles",
+      apply: (node) => ({
+        ...node,
+        props: {
+          ...node.props,
+          options: node.props.options.map(({ title }) => ({ title })),
+        },
+      }),
+    },
+    {
+      id: "no-freeform",
+      label: "No freeform",
+      apply: (node) => ({
+        ...node,
+        props: { ...node.props, freeformPlaceholder: undefined },
+      }),
+    },
+  ],
+};

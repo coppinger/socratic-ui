@@ -1,9 +1,15 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import { SectionLabel } from "./shared";
+import type { SocraticMotion } from "./motion";
+import {
+  MotionCard,
+  MotionItem,
+  MotionStage,
+  SectionLabel,
+} from "./shared";
 
 export type NegationSelectOption = {
   title: string;
@@ -18,6 +24,7 @@ export interface NegationSelectProps {
   value: string[];
   onChange: (value: string[]) => void;
   number?: string;
+  motion?: SocraticMotion;
 }
 
 export function NegationSelect({
@@ -27,6 +34,7 @@ export function NegationSelect({
   value,
   onChange,
   number,
+  motion,
 }: NegationSelectProps) {
   const eliminated = new Set(value);
 
@@ -41,26 +49,26 @@ export function NegationSelect({
   const remaining = options.length - eliminated.size;
 
   return (
-    <Card className="gap-4 px-7 py-6">
+    <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
-        <div className="flex flex-col gap-2">
+        <MotionStage motion={motion} className="flex flex-col gap-2">
           {options.map((option) => {
             const killed = eliminated.has(option.title);
             return (
-              <button
-                key={option.title}
-                type="button"
-                aria-pressed={killed}
-                aria-label={`${killed ? "Restore" : "Eliminate"} ${option.title}`}
-                onClick={() => toggle(option.title)}
-                className={cn(
-                  "flex w-full items-center gap-3.5 rounded-xl border bg-card px-4 py-3.5 text-left transition-colors",
-                  killed
-                    ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[var(--negation-soft)] opacity-60"
-                    : "border-border",
-                )}
-              >
+              <MotionItem motion={motion} key={option.title}>
+                <button
+                  type="button"
+                  aria-pressed={killed}
+                  aria-label={`${killed ? "Restore" : "Eliminate"} ${option.title}`}
+                  onClick={() => toggle(option.title)}
+                  className={cn(
+                    "flex w-full items-center gap-3.5 rounded-xl border bg-card px-4 py-3.5 text-left transition-colors",
+                    killed
+                      ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[var(--negation-soft)] opacity-60"
+                      : "border-border",
+                  )}
+                >
                 <span
                   className={cn(
                     "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-sm font-bold transition-colors",
@@ -89,16 +97,17 @@ export function NegationSelect({
                     </div>
                   ) : null}
                 </div>
-              </button>
+                </button>
+              </MotionItem>
             );
           })}
-        </div>
+        </MotionStage>
         {eliminated.size > 0 ? (
           <div className="mt-3.5 rounded-lg bg-muted px-3.5 py-2.5 text-[13px] font-medium text-[var(--text-soft)]">
             {eliminated.size} eliminated — {remaining} remaining in scope
           </div>
         ) : null}
       </CardContent>
-    </Card>
+    </MotionCard>
   );
 }

@@ -1,9 +1,16 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
-import { OptionCard, SectionLabel } from "./shared";
+import type { SocraticMotion } from "./motion";
+import {
+  MotionCard,
+  MotionItem,
+  MotionStage,
+  OptionCard,
+  SectionLabel,
+} from "./shared";
 
 export type SingleSelectOption = {
   title: string;
@@ -22,6 +29,7 @@ export interface SingleSelectProps {
   freeformPlaceholder?: string;
   freeformValue?: string;
   onFreeformChange?: (value: string) => void;
+  motion?: SocraticMotion;
 }
 
 export function SingleSelect({
@@ -34,15 +42,16 @@ export function SingleSelect({
   freeformPlaceholder,
   freeformValue,
   onFreeformChange,
+  motion,
 }: SingleSelectProps) {
   const showFreeform =
     freeformPlaceholder !== undefined && onFreeformChange !== undefined;
 
   return (
-    <Card className="gap-4 px-7 py-6">
+    <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
-        <div className="flex flex-col gap-2">
+        <MotionStage motion={motion} className="flex flex-col gap-2">
           {/*
             Tapping an already-selected option deselects it (clears to null).
             This diverges from the reference JSX, which is commit-only — kept
@@ -50,17 +59,18 @@ export function SingleSelect({
             without picking something else first.
           */}
           {options.map((option) => (
-            <OptionCard
-              key={option.title}
-              title={option.title}
-              subtitle={option.subtitle}
-              selected={value === option.title}
-              onSelect={() =>
-                onChange(value === option.title ? null : option.title)
-              }
-            />
+            <MotionItem motion={motion} key={option.title}>
+              <OptionCard
+                title={option.title}
+                subtitle={option.subtitle}
+                selected={value === option.title}
+                onSelect={() =>
+                  onChange(value === option.title ? null : option.title)
+                }
+              />
+            </MotionItem>
           ))}
-        </div>
+        </MotionStage>
         {showFreeform ? (
           <Textarea
             placeholder={freeformPlaceholder}
@@ -71,6 +81,6 @@ export function SingleSelect({
           />
         ) : null}
       </CardContent>
-    </Card>
+    </MotionCard>
   );
 }

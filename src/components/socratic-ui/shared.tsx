@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { motion as m } from "motion/react";
 
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-/**
- * SectionLabel — the numbered header that sits above every Socratic UI
- * component. Mirrors the design language from reference/structured-chat-inputs.jsx.
- */
+import { defaultMotion, type SocraticMotion } from "./motion";
+
 export function SectionLabel({
   number,
   title,
@@ -36,12 +36,6 @@ export function SectionLabel({
   );
 }
 
-/**
- * OptionCard — the full-width tappable card that appears in single, multi,
- * priority, and other selection components. Controlled via `selected` and
- * `onSelect`. The optional `indicator` slot is used by PriorityRank to show
- * the rank number.
- */
 export function OptionCard({
   title,
   subtitle,
@@ -70,7 +64,7 @@ export function OptionCard({
       className={cn(
         "flex w-full items-center gap-3.5 rounded-xl border bg-card px-4 py-3.5 text-left transition-colors",
         "border-border",
-        // Dashed only applies when not selected — selecting a card snaps it to a solid border.
+        // Dashed only applies when unselected — selecting snaps it to a solid border.
         !selected && dashed && "border-dashed",
         selected && "border-primary bg-[var(--accent-soft)]",
         disabled && "cursor-default opacity-40",
@@ -113,15 +107,107 @@ export function OptionCard({
   );
 }
 
-/**
- * SuccessSummary — the green confirmation pill that appears at the bottom of
- * a component once it's been completed (e.g. all blanks filled, both
- * dimensions answered).
- */
 export function SuccessSummary({ children }: { children: React.ReactNode }) {
   return (
     <div className="mt-3.5 rounded-lg border border-[color-mix(in_oklab,var(--success)_30%,transparent)] bg-[var(--success-soft)] px-4 py-3 text-[13px] font-medium text-[var(--success)]">
       ✓ {children}
     </div>
+  );
+}
+
+// ─── Motion primitives ───────────────────────────────────────────────────────
+//
+// Hard invariant: when `motion` is undefined every primitive below must
+// render the same JSX it would have without us. The docs demos at
+// /docs/components/* depend on this — they never pass `motion`, and we
+// rely on the no-op branches here to keep their trees byte-identical.
+
+export function MotionStage({
+  motion: anim,
+  children,
+  className,
+}: {
+  motion?: SocraticMotion;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  if (!anim?.enabled) {
+    // Single-child stages (FillBlank) call without a className and rely
+    // on the fragment branch so we don't add an extra wrapper div.
+    if (className) {
+      return <div className={className}>{children}</div>;
+    }
+    return <>{children}</>;
+  }
+  const stagger = anim.stagger ?? defaultMotion.stagger;
+  const delay = anim.delay ?? defaultMotion.delay;
+  return (
+    <m.div
+      className={className}
+      initial="hidden"
+      animate="show"
+      variants={{
+        hidden: {},
+        show: {
+          transition: { staggerChildren: stagger, delayChildren: delay },
+        },
+      }}
+    >
+      {children}
+    </m.div>
+  );
+}
+
+export function MotionCard({
+  motion: anim,
+  children,
+  className,
+}: {
+  motion?: SocraticMotion;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  if (!anim?.enabled) {
+    return <Card className={className}>{children}</Card>;
+  }
+  const duration = anim.duration ?? defaultMotion.duration;
+  const delay = anim.delay ?? defaultMotion.delay;
+  const ease = anim.ease ?? defaultMotion.ease;
+  return (
+    <m.div
+      initial={{ opacity: 0, y: 12, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: duration * 1.2, ease, delay }}
+    >
+      <Card className={className}>{children}</Card>
+    </m.div>
+  );
+}
+
+export function MotionItem({
+  motion: anim,
+  children,
+}: {
+  motion?: SocraticMotion;
+  children: React.ReactNode;
+}) {
+  if (!anim?.enabled) {
+    return <>{children}</>;
+  }
+  const duration = anim.duration ?? defaultMotion.duration;
+  const ease = anim.ease ?? defaultMotion.ease;
+  return (
+    <m.div
+      variants={{
+        hidden: { opacity: 0, y: 6 },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration, ease },
+        },
+      }}
+    >
+      {children}
+    </m.div>
   );
 }

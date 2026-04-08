@@ -31,6 +31,12 @@ export function DocsHeader() {
         >
           Components
         </Link>
+        <Link
+          href="/playground"
+          className="transition-colors hover:text-foreground"
+        >
+          Playground
+        </Link>
       </nav>
       <ThemeToggle className="ml-auto" />
     </header>

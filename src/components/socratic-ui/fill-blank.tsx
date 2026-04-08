@@ -1,9 +1,16 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import { SectionLabel, SuccessSummary } from "./shared";
+import type { SocraticMotion } from "./motion";
+import {
+  MotionCard,
+  MotionItem,
+  MotionStage,
+  SectionLabel,
+  SuccessSummary,
+} from "./shared";
 
 export type FillBlankSlot = {
   /** Stable identifier used as a key in `value`. */
@@ -28,19 +35,22 @@ export interface FillBlankProps {
   number?: string;
   /** Optional summary text shown when every slot is filled. */
   completeMessage?: string;
+  motion?: SocraticMotion;
 }
 
 type Segment =
   | { kind: "text"; content: string }
   | { kind: "slot"; id: string };
 
+const SLOT_PATTERN = /\{([^{}]+)\}/g;
+
 function parseTemplate(template: string, slotIds: Set<string>): Segment[] {
   const segments: Segment[] = [];
-  const pattern = /\{([^{}]+)\}/g;
+  SLOT_PATTERN.lastIndex = 0;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = pattern.exec(template)) !== null) {
+  while ((match = SLOT_PATTERN.exec(template)) !== null) {
     if (match.index > lastIndex) {
       segments.push({
         kind: "text",
@@ -52,7 +62,7 @@ function parseTemplate(template: string, slotIds: Set<string>): Segment[] {
     } else {
       segments.push({ kind: "text", content: match[0] });
     }
-    lastIndex = pattern.lastIndex;
+    lastIndex = SLOT_PATTERN.lastIndex;
   }
 
   if (lastIndex < template.length) {
@@ -70,9 +80,8 @@ export function FillBlank({
   onChange,
   number,
   completeMessage = "Clear and scoped — that's a strong starting point.",
+  motion,
 }: FillBlankProps) {
-  // Parse on every render — the template/slots are tiny and the prior memo
-  // never hit because callers pass an inline `slots` literal each render.
   const slotById = new Map(slots.map((slot) => [slot.id, slot]));
   const segments = parseTemplate(template, new Set(slotById.keys()));
 
@@ -82,11 +91,13 @@ export function FillBlank({
   const allFilled = slots.every((slot) => (value[slot.id] ?? "").trim() !== "");
 
   return (
-    <Card className="gap-4 px-7 py-6">
+    <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
-        <div className="text-base leading-[2.4] text-foreground">
-          {segments.map((segment, index) => {
+        <MotionStage motion={motion}>
+          <MotionItem motion={motion}>
+            <div className="text-base leading-[2.4] text-foreground">
+              {segments.map((segment, index) => {
             if (segment.kind === "text") {
               return <span key={index}>{segment.content}</span>;
             }
@@ -112,9 +123,11 @@ export function FillBlank({
               />
             );
           })}
-        </div>
+            </div>
+          </MotionItem>
+        </MotionStage>
         {allFilled ? <SuccessSummary>{completeMessage}</SuccessSummary> : null}
       </CardContent>
-    </Card>
+    </MotionCard>
   );
 }

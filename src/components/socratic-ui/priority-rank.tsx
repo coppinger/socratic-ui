@@ -1,9 +1,16 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import { OptionCard, SectionLabel } from "./shared";
+import type { SocraticMotion } from "./motion";
+import {
+  MotionCard,
+  MotionItem,
+  MotionStage,
+  OptionCard,
+  SectionLabel,
+} from "./shared";
 
 export type PriorityRankItem = {
   title: string;
@@ -18,6 +25,7 @@ export interface PriorityRankProps {
   value: string[];
   onChange: (value: string[]) => void;
   number?: string;
+  motion?: SocraticMotion;
 }
 
 export function PriorityRank({
@@ -27,57 +35,62 @@ export function PriorityRank({
   value,
   onChange,
   number,
+  motion,
 }: PriorityRankProps) {
   const ranked = value;
-  const unranked = items.filter((item) => !ranked.includes(item.title));
+  const itemsByTitle = new Map(items.map((item) => [item.title, item]));
+  const rankedSet = new Set(ranked);
+  const unranked = items.filter((item) => !rankedSet.has(item.title));
 
   const add = (title: string) => onChange([...ranked, title]);
   const remove = (title: string) =>
     onChange(ranked.filter((item) => item !== title));
-  const find = (title: string) => items.find((item) => item.title === title);
 
   return (
-    <Card className="gap-4 px-7 py-6">
+    <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
         {ranked.length > 0 ? (
-          <div
+          <MotionStage
+            motion={motion}
             className={cn(
               "flex flex-col gap-2",
               unranked.length > 0 && "mb-3.5",
             )}
           >
             {ranked.map((title, index) => {
-              const item = find(title);
+              const item = itemsByTitle.get(title);
               if (!item) return null;
               return (
-                <OptionCard
-                  key={title}
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  selected
-                  indicator={index + 1}
-                  onSelect={() => remove(title)}
-                />
+                <MotionItem motion={motion} key={title}>
+                  <OptionCard
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    selected
+                    indicator={index + 1}
+                    onSelect={() => remove(title)}
+                  />
+                </MotionItem>
               );
             })}
-          </div>
+          </MotionStage>
         ) : null}
         {unranked.length > 0 ? (
-          <div className="flex flex-col gap-2">
+          <MotionStage motion={motion} className="flex flex-col gap-2">
             {unranked.map((item) => (
-              <OptionCard
-                key={item.title}
-                title={item.title}
-                subtitle={item.subtitle}
-                selected={false}
-                dashed
-                onSelect={() => add(item.title)}
-              />
+              <MotionItem motion={motion} key={item.title}>
+                <OptionCard
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  selected={false}
+                  dashed
+                  onSelect={() => add(item.title)}
+                />
+              </MotionItem>
             ))}
-          </div>
+          </MotionStage>
         ) : null}
       </CardContent>
-    </Card>
+    </MotionCard>
   );
 }

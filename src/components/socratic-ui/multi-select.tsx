@@ -1,8 +1,15 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 
-import { OptionCard, SectionLabel } from "./shared";
+import type { SocraticMotion } from "./motion";
+import {
+  MotionCard,
+  MotionItem,
+  MotionStage,
+  OptionCard,
+  SectionLabel,
+} from "./shared";
 
 export type MultiSelectOption = {
   title: string;
@@ -19,6 +26,7 @@ export interface MultiSelectProps {
   value: string[];
   onChange: (value: string[]) => void;
   number?: string;
+  motion?: SocraticMotion;
 }
 
 export function MultiSelect({
@@ -29,6 +37,7 @@ export function MultiSelect({
   value,
   onChange,
   number,
+  motion,
 }: MultiSelectProps) {
   const selected = new Set(value);
 
@@ -42,7 +51,7 @@ export function MultiSelect({
   };
 
   return (
-    <Card className="gap-4 px-7 py-6">
+    <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
         <p className="mb-3.5 -mt-1 text-[13px] text-muted-foreground">
@@ -51,23 +60,24 @@ export function MultiSelect({
           </span>{" "}
           selected
         </p>
-        <div className="flex flex-col gap-2">
+        <MotionStage motion={motion} className="flex flex-col gap-2">
           {options.map((option) => {
             const isSelected = selected.has(option.title);
             const atLimit = !isSelected && selected.size >= max;
             return (
-              <OptionCard
-                key={option.title}
-                title={option.title}
-                subtitle={option.subtitle}
-                selected={isSelected}
-                disabled={atLimit}
-                onSelect={() => toggle(option.title)}
-              />
+              <MotionItem motion={motion} key={option.title}>
+                <OptionCard
+                  title={option.title}
+                  subtitle={option.subtitle}
+                  selected={isSelected}
+                  disabled={atLimit}
+                  onSelect={() => toggle(option.title)}
+                />
+              </MotionItem>
             );
           })}
-        </div>
+        </MotionStage>
       </CardContent>
-    </Card>
+    </MotionCard>
   );
 }
