@@ -98,6 +98,7 @@ export default async function SingleSelectPage() {
       highlightedUsage={highlightedUsage}
       rawUsage={usageSource}
       props={props}
+      playgroundSlug="single-select"
     />
   );
 }

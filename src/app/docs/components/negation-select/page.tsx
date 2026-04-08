@@ -78,6 +78,7 @@ export default async function NegationSelectPage() {
       highlightedUsage={highlightedUsage}
       rawUsage={usageSource}
       props={props}
+      playgroundSlug="negation-select"
     />
   );
 }

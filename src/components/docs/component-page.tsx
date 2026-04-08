@@ -1,4 +1,9 @@
 import * as React from "react";
+import Link from "next/link";
+import { SlidersHorizontalIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import type { SocraticKind } from "@/playground/registry";
 
 import { CodeBlock } from "./code-block";
 import { ComponentPreview } from "./component-preview";
@@ -17,6 +22,7 @@ export interface ComponentPageProps {
   /** Raw usage code for the copy button. */
   rawUsage?: string;
   props: PropDef[];
+  playgroundSlug?: SocraticKind;
 }
 
 /**
@@ -32,13 +38,25 @@ export function ComponentPage({
   highlightedUsage,
   rawUsage,
   props,
+  playgroundSlug,
 }: ComponentPageProps) {
   return (
     <article className="flex w-full min-w-0 flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <h1 className="scroll-mt-24 text-3xl font-bold tracking-tight text-foreground">
-          {title}
-        </h1>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <h1 className="scroll-mt-24 text-3xl font-bold tracking-tight text-foreground">
+            {title}
+          </h1>
+          {playgroundSlug ? (
+            <Button
+              variant="outline"
+              render={<Link href={`/playground?component=${playgroundSlug}`} />}
+            >
+              <SlidersHorizontalIcon />
+              Open in playground
+            </Button>
+          ) : null}
+        </div>
         <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
           {description}
         </p>

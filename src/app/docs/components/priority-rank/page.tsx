@@ -78,6 +78,7 @@ export default async function PriorityRankPage() {
       highlightedUsage={highlightedUsage}
       rawUsage={usageSource}
       props={props}
+      playgroundSlug="priority-rank"
     />
   );
 }

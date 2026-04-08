@@ -92,6 +92,7 @@ export default async function FillBlankPage() {
       highlightedUsage={highlightedUsage}
       rawUsage={usageSource}
       props={props}
+      playgroundSlug="fill-blank"
     />
   );
 }

@@ -85,6 +85,7 @@ export default async function MultiSelectPage() {
       highlightedUsage={highlightedUsage}
       rawUsage={usageSource}
       props={props}
+      playgroundSlug="multi-select"
     />
   );
 }

@@ -1,7 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import { BookOpenIcon } from "lucide-react";
+
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
 import type { OptionIconSettings } from "@/components/socratic-ui/shared";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type {
@@ -71,9 +75,19 @@ export function Rail({
           <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
             Playground
           </p>
-          <h1 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
-            {entry.label}
-          </h1>
+          <div className="mt-1 flex items-start justify-between gap-3">
+            <h1 className="text-lg font-semibold tracking-tight text-foreground">
+              {entry.label}
+            </h1>
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link href={`/docs/components/${componentSlug}`} />}
+            >
+              <BookOpenIcon />
+              Docs
+            </Button>
+          </div>
           <p className="mt-1 text-xs leading-snug text-muted-foreground">
             {entry.description}
           </p>
