@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { CodeBlock } from "./code-block";
 import { ComponentPreview } from "./component-preview";
 import { PropsTable, type PropDef } from "./props-table";
 
@@ -44,7 +45,10 @@ export function ComponentPage({
       </header>
 
       <section className="flex flex-col gap-4">
-        <h2 className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground">
+        <h2
+          id="preview"
+          className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground"
+        >
           Preview
         </h2>
         <ComponentPreview
@@ -57,23 +61,21 @@ export function ComponentPage({
 
       {highlightedUsage && rawUsage ? (
         <section className="flex flex-col gap-4">
-          <h2 className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground">
+          <h2
+            id="usage"
+            className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground"
+          >
             Usage
           </h2>
-          <ComponentPreview
-            highlightedCode={highlightedUsage}
-            rawCode={rawUsage}
-          >
-            <p className="text-sm text-muted-foreground">
-              Drop the component into any page and wire up its controlled
-              value + onChange handler.
-            </p>
-          </ComponentPreview>
+          <CodeBlock highlightedCode={highlightedUsage} rawCode={rawUsage} />
         </section>
       ) : null}
 
       <section className="flex flex-col gap-4">
-        <h2 className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground">
+        <h2
+          id="api-reference"
+          className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground"
+        >
           API Reference
         </h2>
         <PropsTable props={props} />

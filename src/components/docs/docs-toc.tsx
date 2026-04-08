@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
@@ -18,13 +19,19 @@ function slugify(text: string) {
 }
 
 /**
- * Right-rail "On this page" TOC. Pure DOM scanner — after mount it queries
- * `main h2, main h3`, ensures each heading has an id (slugifying if missing),
+ * Right-rail "On this page" TOC. After mount it queries `main h2, main h3`
  * and uses IntersectionObserver to highlight the active section on scroll.
+ * Headings are expected to already have server-rendered `id` attributes
+ * (so deep links work on initial load) — any without one get a client-side
+ * slugified fallback.
+ *
+ * Rescans on every pathname change because this component lives in the docs
+ * layout and persists across sibling-route navigations.
  *
  * Hidden below `xl` to avoid squeezing the main content column.
  */
 export function DocsToc() {
+  const pathname = usePathname();
   const [headings, setHeadings] = React.useState<Heading[]>([]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
 
@@ -48,6 +55,7 @@ export function DocsToc() {
     });
 
     setHeadings(collected);
+    setActiveId(collected[0]?.id ?? null);
 
     if (collected.length === 0) return;
 
@@ -66,7 +74,7 @@ export function DocsToc() {
 
     for (const node of nodes) observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
 
   if (headings.length === 0) return null;
 

@@ -22,7 +22,10 @@ export default function DocsIntroPage() {
       </header>
 
       <section className="flex flex-col gap-3">
-        <h2 className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground">
+        <h2
+          id="why-structured-inputs"
+          className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground"
+        >
           Why structured inputs?
         </h2>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -34,7 +37,10 @@ export default function DocsIntroPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground">
+        <h2
+          id="components"
+          className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground"
+        >
           Components
         </h2>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">

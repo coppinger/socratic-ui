@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, CopyIcon } from "lucide-react";
 
 import {
   Tabs,
@@ -9,8 +8,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+
+import { CopyCodeButton } from "./copy-code-button";
 
 export interface ComponentPreviewProps {
   /**
@@ -54,39 +53,5 @@ export function ComponentPreview({
         />
       </TabsContent>
     </Tabs>
-  );
-}
-
-function CopyCodeButton({ code }: { code: string }) {
-  const [copied, setCopied] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!copied) return;
-    const timer = window.setTimeout(() => setCopied(false), 1500);
-    return () => window.clearTimeout(timer);
-  }, [copied]);
-
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      className={cn(
-        "absolute right-3 top-3 z-10 h-7 w-7 bg-background/70 text-muted-foreground backdrop-blur hover:bg-background hover:text-foreground",
-      )}
-      onClick={() => {
-        navigator.clipboard.writeText(code).then(
-          () => setCopied(true),
-          () => setCopied(false),
-        );
-      }}
-      aria-label={copied ? "Copied" : "Copy code"}
-    >
-      {copied ? (
-        <CheckIcon className="size-3.5" />
-      ) : (
-        <CopyIcon className="size-3.5" />
-      )}
-    </Button>
   );
 }
