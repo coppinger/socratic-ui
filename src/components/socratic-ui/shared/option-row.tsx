@@ -61,7 +61,7 @@ export function OptionRow({
       {...restRowProps}
       className={cn(
         "group relative flex w-full items-center gap-4 px-5 py-4 text-left transition-colors",
-        "outline-none focus-visible:bg-muted/60",
+        "outline-hidden focus-visible:bg-muted/60",
         focused && "bg-muted/60",
         selected && "bg-[var(--accent-soft)]",
         killed && "bg-[var(--negation-soft)] opacity-70",

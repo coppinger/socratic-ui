@@ -149,7 +149,7 @@ export function PlaygroundClient({
 
   if (!entry || !scenario || !node) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
+      <main className="flex min-h-dvh items-center justify-center">
         <p className="text-sm text-muted-foreground">
           No playground entry available for{" "}
           <code className="font-mono">{componentSlug}</code>.

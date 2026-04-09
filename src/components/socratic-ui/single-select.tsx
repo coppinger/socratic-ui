@@ -160,7 +160,7 @@ function FreeformRow({
       onClick={() => inputRef.current?.focus()}
       className={cn(
         "group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors",
-        "outline-none focus-visible:bg-muted/60",
+        "outline-hidden focus-visible:bg-muted/60",
         focused && "bg-muted/60",
       )}
     >
@@ -180,7 +180,7 @@ function FreeformRow({
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
         className={cn(
-          "min-w-0 flex-1 border-0 bg-transparent text-[15px] font-semibold text-foreground outline-none",
+          "min-w-0 flex-1 border-0 bg-transparent text-[15px] font-semibold text-foreground outline-hidden",
           "placeholder:font-normal placeholder:text-muted-foreground",
         )}
       />
@@ -232,7 +232,7 @@ function SingleSelectTiles({
             value={freeformValue ?? ""}
             onChange={(event) => onFreeformChange(event.target.value)}
             rows={2}
-            className="mt-3 w-full resize-y rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
+            className="mt-3 w-full resize-y rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground outline-hidden placeholder:text-muted-foreground focus:border-primary"
           />
         ) : null}
       </CardContent>
