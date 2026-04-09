@@ -18,6 +18,7 @@ import {
   QuestionCard,
   QuestionFooter,
   QuestionHeader,
+  type RovingFocusItemProps,
   SectionLabel,
   SINGLE_SELECT_HINTS,
   useRovingFocus,
@@ -78,8 +79,8 @@ function SingleSelectRows({
   const rowCount = options.length + (showFreeform ? 1 : 0);
 
   const toggle = (index: number) => {
-    // Freeform row has no toggle semantics — Enter focuses the input
-    // via its own onClick handler.
+    // Freeform row has no toggle semantics — the input is itself the
+    // focused/active row, so Enter just stays inside the input.
     if (showFreeform && index === options.length) return;
     const option = options[index];
     if (!option) return;
@@ -153,20 +154,27 @@ function FreeformRow({
   value: string;
   onChange: (value: string) => void;
   focused: boolean;
-  rowProps: ReturnType<ReturnType<typeof useRovingFocus>["getItemProps"]>;
+  rowProps: RovingFocusItemProps;
 }) {
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const { ref: rovingRef, ...restRowProps } = rowProps;
+  // The roving hook types its refs as `HTMLButtonElement` since most rows
+  // are buttons; the freeform row IS the input itself. Cast the whole
+  // props shape once so the input can adopt them directly — the hook only
+  // calls `.focus()` on the stored ref, which works on any `HTMLElement`.
+  const inputRowProps = rowProps as unknown as RovingFocusItemProps<HTMLInputElement>;
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // Home/End must keep editing the typed text — don't let the roving
+    // hook hijack them as list-jump shortcuts. Arrow keys and Enter still
+    // bubble through so the cursor can leave the freeform row.
+    if (event.key === "Home" || event.key === "End") return;
+    inputRowProps.onKeyDown(event);
+  };
 
   return (
-    <button
-      type="button"
-      ref={rovingRef}
-      {...restRowProps}
-      onClick={() => inputRef.current?.focus()}
+    <div
       className={cn(
         "group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors",
-        "outline-hidden focus-visible:bg-muted/60",
+        "has-[input:focus-visible]:bg-muted/60",
         focused && "bg-muted/60",
       )}
     >
@@ -177,20 +185,19 @@ function FreeformRow({
         <PencilLine className="size-4" />
       </span>
       <input
-        ref={inputRef}
+        {...inputRowProps}
+        onKeyDown={handleKeyDown}
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
         className={cn(
           "min-w-0 flex-1 border-0 bg-transparent text-[15px] font-semibold text-foreground outline-hidden",
           "placeholder:font-normal placeholder:text-muted-foreground",
         )}
       />
-    </button>
+    </div>
   );
 }
 

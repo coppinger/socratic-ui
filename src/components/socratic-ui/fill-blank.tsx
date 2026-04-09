@@ -94,14 +94,26 @@ export function FillBlank({
     () => parseTemplate(template, new Set(slotById.keys())),
     [template, slotById],
   );
+  // The first slot is whichever one wins the segment scan — templates may
+  // begin with literal text, so we can't assume `slots[0]`.
+  const firstSlotId = React.useMemo(
+    () => segments.find((segment) => segment.kind === "slot")?.id,
+    [segments],
+  );
 
   const setSlot = (id: string, next: string) =>
     onChange({ ...value, [id]: next });
 
   const allFilled = slots.every((slot) => (value[slot.id] ?? "").trim() !== "");
 
+  const firstSlotRef = React.useRef<HTMLInputElement | null>(null);
+  const focusFirst = React.useCallback(() => {
+    firstSlotRef.current?.focus();
+  }, []);
+
   const sequence = useSequenceQuestion({
     canSubmit: allFilled,
+    focusFirst,
     hints: FILL_BLANK_HINTS,
   });
 
@@ -126,7 +138,8 @@ export function FillBlank({
                 const slotValue = value[slot.id] ?? "";
                 return (
                   <input
-                    key={`${slot.id}-${index}`}
+                    key={slot.id}
+                    ref={slot.id === firstSlotId ? firstSlotRef : undefined}
                     type="text"
                     placeholder={slot.placeholder}
                     aria-label={slot.placeholder}

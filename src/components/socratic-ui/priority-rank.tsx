@@ -148,7 +148,8 @@ function PriorityRankRow({
       animate={{
         opacity: 1,
         y: 0,
-        transition: { duration: 0.22, delay: 0.05 * index },
+        // Cap the per-row delay so 10+ item ranks don't crawl in for half a second.
+        transition: { duration: 0.22, delay: Math.min(index, 6) * 0.05 },
       }}
       className="list-none"
     >

@@ -17,45 +17,54 @@ export interface UseRovingFocusOptions {
   onActiveChange?: (index: number) => void;
 }
 
-export interface RovingFocusItemProps {
-  ref: (el: HTMLButtonElement | null) => void;
+export interface RovingFocusItemProps<
+  T extends HTMLElement = HTMLButtonElement,
+> {
+  ref: (el: T | null) => void;
   tabIndex: number;
-  onKeyDown: React.KeyboardEventHandler<HTMLButtonElement>;
-  onFocus: React.FocusEventHandler<HTMLButtonElement>;
+  onKeyDown: React.KeyboardEventHandler<T>;
+  onFocus: React.FocusEventHandler<T>;
   "data-roving-index": number;
 }
 
-export interface UseRovingFocusReturn {
+export interface UseRovingFocusReturn<
+  T extends HTMLElement = HTMLButtonElement,
+> {
   activeIndex: number;
   setActiveIndex: (i: number) => void;
   /** Focus the row at `index`. Call after mount / after advancing. */
   focusItem: (index: number) => void;
-  getItemProps: (index: number) => RovingFocusItemProps;
+  getItemProps: (index: number) => RovingFocusItemProps<T>;
 }
 
 /**
  * Roving-tabindex keyboard navigation for a list of focusable rows.
  *
  * True roving (not `aria-activedescendant`) so each row stays a real
- * focusable `<button>`. That matters because:
+ * focusable element. That matters because:
  *   - screen-reader interaction patterns are more robust on real focus
  *   - drag handles / trailing controls inside rows can be focused too
+ *
+ * The element-type generic defaults to `HTMLButtonElement` so the typical
+ * "list of buttons" call sites stay clean. Lists that mix element kinds
+ * (e.g. SingleSelect's option buttons + freeform input) instantiate the
+ * hook with a union type so a single ref array can hold both.
  *
  * Handles ↑/↓ (vertical) or ←/→ (horizontal), Home/End, Enter. ⌘Enter
  * is deliberately unhandled — the sequence orchestrator listens for it
  * at a higher level.
  */
-export function useRovingFocus({
+export function useRovingFocus<T extends HTMLElement = HTMLButtonElement>({
   count,
   orientation = "vertical",
   initialIndex = 0,
   onActivate,
   onActiveChange,
-}: UseRovingFocusOptions): UseRovingFocusReturn {
+}: UseRovingFocusOptions): UseRovingFocusReturn<T> {
   const [activeIndex, setActiveIndexState] = React.useState(() =>
     clampIndex(initialIndex, count),
   );
-  const itemRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  const itemRefs = React.useRef<(T | null)[]>([]);
   const pendingFrame = React.useRef<number | null>(null);
 
   React.useEffect(() => {
@@ -96,7 +105,7 @@ export function useRovingFocus({
   );
 
   const getItemProps = React.useCallback(
-    (index: number): RovingFocusItemProps => ({
+    (index: number): RovingFocusItemProps<T> => ({
       ref: (el) => {
         itemRefs.current[index] = el;
       },

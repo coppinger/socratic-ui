@@ -40,5 +40,8 @@ export {
   useSequenceContext,
   type SequenceContextValue,
 } from "./shared/sequence-context";
-export { useRovingFocus } from "./shared/use-roving-focus";
+export {
+  useRovingFocus,
+  type RovingFocusItemProps,
+} from "./shared/use-roving-focus";
 export { useSequenceQuestion } from "./shared/use-sequence-question";

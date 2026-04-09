@@ -16,6 +16,8 @@ export function OptionCard({
   iconLayout = "horizontal",
   iconAlignment = "left",
   className,
+  tone = "default",
+  ariaLabel,
 }: {
   title: string;
   subtitle?: string;
@@ -28,20 +30,39 @@ export function OptionCard({
   iconLayout?: OptionIconLayout;
   iconAlignment?: OptionIconAlignment;
   className?: string;
+  /**
+   * `default` is the affirmative-pick styling. `negation` paints the
+   * eliminated/killed state used by `NegationSelect` — selected swaps to
+   * the negation palette, the chip shows ✕ instead of the icon, and the
+   * trailing ✓ is suppressed.
+   */
+  tone?: "default" | "negation";
+  /** Forwarded to the underlying button for callers that need a richer label. */
+  ariaLabel?: string;
 }) {
+  const isNegation = tone === "negation";
   // Vertical layout only applies when we actually have an icon to stack
   // — otherwise there's nothing to rotate and we fall back to horizontal.
   const isVertical = iconLayout === "vertical" && icon !== undefined;
   const isCentered = iconAlignment === "center";
+  // Negation tone always renders a chip slot (even without an icon) so the
+  // killed ✕ glyph has somewhere to live; default tone only renders one when
+  // an icon is supplied.
+  const showChip = icon !== undefined || isNegation;
+  const hasIconBox = icon !== undefined || isVertical;
   return (
     <button
       type="button"
       onClick={onSelect}
       disabled={disabled}
       aria-pressed={selected}
+      aria-label={ariaLabel}
       className={cn(
         "relative rounded-xl border bg-card transition-colors",
         "border-border",
+        // Match OptionRow's focus model: suppress the default outline and
+        // paint a custom ring so keyboard focus is visible on tile mode.
+        "outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50",
         isVertical
           ? cn(
               "flex h-full w-full flex-col gap-3 px-4 pb-4 pt-5",
@@ -55,23 +76,41 @@ export function OptionCard({
             ),
         // Dashed only applies when unselected — selecting snaps it to a solid border.
         !selected && dashed && "border-dashed",
-        selected && "border-primary bg-[var(--accent-soft)]",
+        // Selected styling diverges by tone: negation paints the killed
+        // state, default paints the affirmed-selection accent.
+        selected &&
+          (isNegation
+            ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[var(--negation-soft)] opacity-60"
+            : "border-primary bg-[var(--accent-soft)]"),
         disabled && "cursor-default opacity-40",
         className,
       )}
     >
-      {icon !== undefined ? (
+      {showChip ? (
         <span
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-lg border transition-colors",
-            isVertical ? "h-12 w-12" : "h-9 w-9",
-            selected
-              ? "border-primary/40 bg-primary/10 text-primary"
-              : "border-border/80 bg-muted/60 text-foreground/70",
+            "flex shrink-0 items-center justify-center transition-colors",
+            // Three sizes: large (vertical icon), medium (horizontal icon),
+            // small (negation without icon — borderless to match the
+            // pre-refactor negation row chrome).
+            isVertical
+              ? "h-12 w-12 rounded-lg border"
+              : icon !== undefined
+                ? "h-9 w-9 rounded-lg border"
+                : "h-7 w-7 rounded-md text-sm font-bold",
+            selected && isNegation
+              ? hasIconBox
+                ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
+                : "bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
+              : selected
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : icon !== undefined
+                  ? "border-border/80 bg-muted/60 text-foreground/70"
+                  : "bg-muted text-muted-foreground",
           )}
           aria-hidden
         >
-          {icon}
+          {selected && isNegation ? "✕" : icon}
         </span>
       ) : null}
       {indicator !== undefined ? (
@@ -96,7 +135,11 @@ export function OptionCard({
         <div
           className={cn(
             "text-sm font-semibold leading-tight",
-            selected ? "text-primary" : "text-foreground",
+            selected && isNegation
+              ? "text-[var(--negation)] line-through"
+              : selected
+                ? "text-primary"
+                : "text-foreground",
           )}
         >
           {title}
@@ -107,7 +150,7 @@ export function OptionCard({
           </div>
         ) : null}
       </div>
-      {selected && indicator === undefined ? (
+      {selected && !isNegation && indicator === undefined ? (
         <span
           className={cn(
             "text-base text-primary",

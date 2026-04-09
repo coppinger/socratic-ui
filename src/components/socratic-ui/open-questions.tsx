@@ -58,11 +58,15 @@ export function OpenQuestions({
   const setAnswer = (id: string, next: string) =>
     onChange({ ...value, [id]: next });
 
-  const allFilled = prompts.every((p) => (value[p.id] ?? "").trim() !== "");
+  const filledCount = prompts.reduce(
+    (count, p) => count + ((value[p.id] ?? "").trim() !== "" ? 1 : 0),
+    0,
+  );
+  const allFilled = filledCount === prompts.length;
 
-  const stackRef = React.useRef<HTMLDivElement | null>(null);
+  const firstTextareaRef = React.useRef<HTMLTextAreaElement | null>(null);
   const focusFirst = React.useCallback(() => {
-    stackRef.current?.querySelector("textarea")?.focus();
+    firstTextareaRef.current?.focus();
   }, []);
 
   const sequence = useSequenceQuestion({
@@ -79,7 +83,10 @@ export function OpenQuestions({
       }
       footer={sequence ? <QuestionFooter /> : null}
     >
-      <div ref={stackRef}>
+      <div>
+        <div aria-live="polite" className="sr-only">
+          {filledCount} of {prompts.length} answered
+        </div>
         <MotionStage motion={motion} className="divide-y divide-border/60">
           {prompts.map((prompt, index) => {
             const promptValue = value[prompt.id] ?? "";
@@ -88,7 +95,6 @@ export function OpenQuestions({
               <MotionItem motion={motion} key={prompt.id}>
                 <div className="flex gap-4 px-7 py-5">
                   <span
-                    aria-hidden
                     className={cn(
                       "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[12px] font-semibold tabular-nums transition-colors",
                       filled
@@ -96,7 +102,10 @@ export function OpenQuestions({
                         : "bg-muted text-muted-foreground",
                     )}
                   >
-                    {String(index + 1).padStart(2, "0")}
+                    <span aria-hidden>{String(index + 1).padStart(2, "0")}</span>
+                    <span className="sr-only">
+                      {filled ? "answered" : "unanswered"}
+                    </span>
                   </span>
                   <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <label
@@ -107,6 +116,7 @@ export function OpenQuestions({
                     </label>
                     <Textarea
                       id={`open-question-${prompt.id}`}
+                      ref={index === 0 ? firstTextareaRef : undefined}
                       value={promptValue}
                       onChange={(event) =>
                         setAnswer(prompt.id, event.target.value)
