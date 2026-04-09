@@ -53,7 +53,7 @@ const props: PropDef[] = [
     name: "onChange",
     type: "(value: string[]) => void",
     required: true,
-    description: "Called when the ranking changes. Tapping a ranked item removes it.",
+    description: "Called when the user drags an item to a new position.",
   },
   {
     name: "number",
@@ -71,7 +71,7 @@ export default async function PriorityRankPage() {
   return (
     <ComponentPage
       title="Priority Rank"
-      description="Tap items in priority order. Ranked items get numbered indicators; unranked items stay dashed. Tap a ranked item to remove it from the ordering."
+      description="Drag rows to reorder priorities. Items not present in `value` are appended in their natural order, so an empty array starts with the items in their source sequence."
       preview={<PriorityRankDemo />}
       highlightedCode={highlightedCode}
       rawCode={demoSource}

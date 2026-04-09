@@ -1,6 +1,6 @@
 "use client";
 
-import type * as React from "react";
+import * as React from "react";
 
 import { CardContent } from "@/components/ui/card";
 
@@ -13,7 +13,13 @@ import {
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
+  OptionRow,
+  QuestionCard,
+  QuestionFooter,
+  QuestionHeader,
   SectionLabel,
+  useRovingFocus,
+  useSequenceQuestion,
 } from "./shared";
 
 export type MultiSelectOption = {
@@ -37,7 +43,14 @@ export interface MultiSelectProps {
   iconAlignment?: OptionIconAlignment;
 }
 
-export function MultiSelect({
+export function MultiSelect(props: MultiSelectProps) {
+  if (props.iconLayout === "vertical") {
+    return <MultiSelectTiles {...props} />;
+  }
+  return <MultiSelectRows {...props} />;
+}
+
+function MultiSelectRows({
   question,
   subtitle,
   options,
@@ -46,7 +59,84 @@ export function MultiSelect({
   onChange,
   number,
   motion,
-  iconLayout = "horizontal",
+}: MultiSelectProps) {
+  const selected = new Set(value);
+
+  const toggleByIndex = (index: number) => {
+    const option = options[index];
+    if (!option) return;
+    if (selected.has(option.title)) {
+      onChange(value.filter((item) => item !== option.title));
+      return;
+    }
+    if (selected.size >= max) return;
+    onChange([...value, option.title]);
+  };
+
+  const { activeIndex, getItemProps, focusItem } = useRovingFocus({
+    count: options.length,
+    onActivate: toggleByIndex,
+  });
+
+  const focusFirst = React.useCallback(() => focusItem(0), [focusItem]);
+  const sequence = useSequenceQuestion({
+    canSubmit: selected.size > 0,
+    focusFirst,
+  });
+
+  const statusText = (
+    <>
+      <span className="font-semibold text-foreground">{selected.size}</span>{" "}
+      selected
+    </>
+  );
+
+  return (
+    <QuestionCard
+      motion={motion}
+      header={
+        <QuestionHeader title={question} subtitle={subtitle} number={number} />
+      }
+      footer={
+        sequence || selected.size > 0 ? (
+          <QuestionFooter statusText={statusText} />
+        ) : null
+      }
+    >
+      <MotionStage motion={motion} className="divide-y divide-border/60">
+        {options.map((option, index) => {
+          const isSelected = selected.has(option.title);
+          const atLimit = !isSelected && selected.size >= max;
+          return (
+            <MotionItem motion={motion} key={option.title}>
+              <OptionRow
+                title={option.title}
+                subtitle={option.subtitle}
+                selected={isSelected}
+                focused={activeIndex === index}
+                disabled={atLimit}
+                onSelect={() => toggleByIndex(index)}
+                leading={{ kind: "checkbox" }}
+                rowProps={getItemProps(index)}
+              />
+            </MotionItem>
+          );
+        })}
+      </MotionStage>
+    </QuestionCard>
+  );
+}
+
+function MultiSelectTiles({
+  question,
+  subtitle,
+  options,
+  max = 3,
+  value,
+  onChange,
+  number,
+  motion,
+  iconLayout = "vertical",
   iconAlignment = "left",
 }: MultiSelectProps) {
   const selected = new Set(value);

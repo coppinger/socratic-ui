@@ -33,7 +33,7 @@ export const priorityRankEntry: PlaygroundEntry<"priority-rank"> = {
   slug: "priority-rank",
   label: "Priority Rank",
   description:
-    "Tap items in priority order. Ranked cards get numbered indicators; unranked cards stay dashed.",
+    "Drag rows to reorder priorities. Numbered rows reflect the current ranking.",
   schema: priorityRankQuestionSchema,
   Renderer: PriorityRankRenderer,
   tweakers: [
@@ -85,7 +85,7 @@ export const priorityRankEntry: PlaygroundEntry<"priority-rank"> = {
             kind: "priority-rank",
             props: {
               question: "Rank what matters most in your next role.",
-              subtitle: "Tap in order. You can re-tap to drop an item back.",
+              subtitle: "Drag rows to reorder your priorities.",
               items: [
                 {
                   title: "Compensation",

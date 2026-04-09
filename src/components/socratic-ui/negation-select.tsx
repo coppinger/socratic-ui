@@ -1,6 +1,6 @@
 "use client";
 
-import type * as React from "react";
+import * as React from "react";
 
 import { CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,13 @@ import {
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
+  OptionRow,
+  QuestionCard,
+  QuestionFooter,
+  QuestionHeader,
   SectionLabel,
+  useRovingFocus,
+  useSequenceQuestion,
 } from "./shared";
 
 export type NegationSelectOption = {
@@ -35,7 +41,14 @@ export interface NegationSelectProps {
   iconAlignment?: OptionIconAlignment;
 }
 
-export function NegationSelect({
+export function NegationSelect(props: NegationSelectProps) {
+  if (props.iconLayout === "vertical") {
+    return <NegationSelectTiles {...props} />;
+  }
+  return <NegationSelectRows {...props} />;
+}
+
+function NegationSelectRows({
   question,
   subtitle,
   options,
@@ -43,7 +56,83 @@ export function NegationSelect({
   onChange,
   number,
   motion,
-  iconLayout = "horizontal",
+}: NegationSelectProps) {
+  const eliminated = new Set(value);
+
+  const toggleByIndex = (index: number) => {
+    const option = options[index];
+    if (!option) return;
+    if (eliminated.has(option.title)) {
+      onChange(value.filter((item) => item !== option.title));
+      return;
+    }
+    onChange([...value, option.title]);
+  };
+
+  const { activeIndex, getItemProps, focusItem } = useRovingFocus({
+    count: options.length,
+    onActivate: toggleByIndex,
+  });
+
+  const focusFirst = React.useCallback(() => focusItem(0), [focusItem]);
+  const sequence = useSequenceQuestion({
+    canSubmit: eliminated.size > 0,
+    focusFirst,
+  });
+
+  const remaining = options.length - eliminated.size;
+  const statusText =
+    eliminated.size > 0
+      ? `${eliminated.size} eliminated — ${remaining} remaining in scope`
+      : null;
+
+  return (
+    <QuestionCard
+      motion={motion}
+      header={
+        <QuestionHeader title={question} subtitle={subtitle} number={number} />
+      }
+      footer={
+        sequence || statusText ? (
+          <QuestionFooter statusText={statusText} />
+        ) : null
+      }
+    >
+      <MotionStage motion={motion} className="divide-y divide-border/60">
+        {options.map((option, index) => {
+          const killed = eliminated.has(option.title);
+          return (
+            <MotionItem motion={motion} key={option.title}>
+              <OptionRow
+                title={option.title}
+                subtitle={option.subtitle}
+                selected={killed}
+                focused={activeIndex === index}
+                onSelect={() => toggleByIndex(index)}
+                leading={{ kind: "negation", killed }}
+                tone={killed ? "negation" : "default"}
+                rowProps={{
+                  ...getItemProps(index),
+                  "aria-label": `${killed ? "Restore" : "Eliminate"} ${option.title}`,
+                }}
+              />
+            </MotionItem>
+          );
+        })}
+      </MotionStage>
+    </QuestionCard>
+  );
+}
+
+function NegationSelectTiles({
+  question,
+  subtitle,
+  options,
+  value,
+  onChange,
+  number,
+  motion,
+  iconLayout = "vertical",
   iconAlignment = "left",
 }: NegationSelectProps) {
   const eliminated = new Set(value);
@@ -95,52 +184,52 @@ export function NegationSelect({
                       : "border-border",
                   )}
                 >
-                <span
-                  className={cn(
-                    "flex shrink-0 items-center justify-center text-sm font-bold transition-colors",
-                    vertical
-                      ? "h-12 w-12 rounded-lg border"
-                      : option.icon !== undefined
-                        ? "h-9 w-9 rounded-lg border"
-                        : "h-7 w-7 rounded-md",
-                    killed
-                      ? option.icon !== undefined || vertical
-                        ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
-                        : "bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
-                      : option.icon !== undefined
-                        ? "border-border/80 bg-muted/60 text-foreground/70"
-                        : "bg-muted text-muted-foreground",
-                  )}
-                  aria-hidden
-                >
-                  {killed ? "✕" : (option.icon ?? "")}
-                </span>
-                <div
-                  className={cn(
-                    "min-w-0",
-                    vertical
-                      ? "w-full"
-                      : isCentered
-                        ? "flex-initial"
-                        : "flex-1",
-                  )}
-                >
+                  <span
+                    className={cn(
+                      "flex shrink-0 items-center justify-center text-sm font-bold transition-colors",
+                      vertical
+                        ? "h-12 w-12 rounded-lg border"
+                        : option.icon !== undefined
+                          ? "h-9 w-9 rounded-lg border"
+                          : "h-7 w-7 rounded-md",
+                      killed
+                        ? option.icon !== undefined || vertical
+                          ? "border-[color-mix(in_oklab,var(--negation)_25%,transparent)] bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
+                          : "bg-[color-mix(in_oklab,var(--negation)_18%,transparent)] text-[var(--negation)]"
+                        : option.icon !== undefined
+                          ? "border-border/80 bg-muted/60 text-foreground/70"
+                          : "bg-muted text-muted-foreground",
+                    )}
+                    aria-hidden
+                  >
+                    {killed ? "✕" : (option.icon ?? "")}
+                  </span>
                   <div
                     className={cn(
-                      "text-sm font-semibold leading-tight",
-                      killed
-                        ? "text-[var(--negation)] line-through"
-                        : "text-foreground",
+                      "min-w-0",
+                      vertical
+                        ? "w-full"
+                        : isCentered
+                          ? "flex-initial"
+                          : "flex-1",
                     )}
                   >
-                    {option.title}
-                  </div>
-                  {option.subtitle ? (
-                    <div className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                      {option.subtitle}
+                    <div
+                      className={cn(
+                        "text-sm font-semibold leading-tight",
+                        killed
+                          ? "text-[var(--negation)] line-through"
+                          : "text-foreground",
+                      )}
+                    >
+                      {option.title}
                     </div>
-                  ) : null}
-                </div>
+                    {option.subtitle ? (
+                      <div className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                        {option.subtitle}
+                      </div>
+                    ) : null}
+                  </div>
                 </button>
               </MotionItem>
             );

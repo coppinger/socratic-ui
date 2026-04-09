@@ -1,15 +1,18 @@
 "use client";
 
-import { CardContent } from "@/components/ui/card";
+import * as React from "react";
+
 import { cn } from "@/lib/utils";
 
 import type { SocraticMotion } from "./motion";
 import {
-  MotionCard,
   MotionItem,
   MotionStage,
-  SectionLabel,
+  QuestionCard,
+  QuestionFooter,
+  QuestionHeader,
   SuccessSummary,
+  useSequenceQuestion,
 } from "./shared";
 
 export type FillBlankSlot = {
@@ -82,52 +85,65 @@ export function FillBlank({
   completeMessage = "Clear and scoped — that's a strong starting point.",
   motion,
 }: FillBlankProps) {
-  const slotById = new Map(slots.map((slot) => [slot.id, slot]));
-  const segments = parseTemplate(template, new Set(slotById.keys()));
+  const slotById = React.useMemo(
+    () => new Map(slots.map((slot) => [slot.id, slot])),
+    [slots],
+  );
+  const segments = React.useMemo(
+    () => parseTemplate(template, new Set(slotById.keys())),
+    [template, slotById],
+  );
 
   const setSlot = (id: string, next: string) =>
     onChange({ ...value, [id]: next });
 
   const allFilled = slots.every((slot) => (value[slot.id] ?? "").trim() !== "");
 
+  const sequence = useSequenceQuestion({ canSubmit: allFilled });
+
   return (
-    <MotionCard motion={motion} className="gap-4 px-7 py-6">
-      <CardContent className="px-0">
-        <SectionLabel number={number} title={question} subtitle={subtitle} />
+    <QuestionCard
+      motion={motion}
+      header={
+        <QuestionHeader title={question} subtitle={subtitle} number={number} />
+      }
+      footer={sequence ? <QuestionFooter /> : null}
+    >
+      <div className="px-7 pb-2">
         <MotionStage motion={motion}>
           <MotionItem motion={motion}>
             <div className="text-base leading-[2.4] text-foreground">
               {segments.map((segment, index) => {
-            if (segment.kind === "text") {
-              return <span key={index}>{segment.content}</span>;
-            }
-            const slot = slotById.get(segment.id);
-            if (!slot) return null;
-            const slotValue = value[slot.id] ?? "";
-            return (
-              <input
-                key={`${slot.id}-${index}`}
-                type="text"
-                placeholder={slot.placeholder}
-                aria-label={slot.placeholder}
-                value={slotValue}
-                onChange={(event) => setSlot(slot.id, event.target.value)}
-                className={cn(
-                  "mx-1 inline-block min-w-[100px] border-0 border-b-2 bg-transparent px-1 py-0.5 text-base font-semibold text-primary outline-hidden transition-colors",
-                  slotValue ? "border-primary" : "border-border",
-                  "placeholder:font-normal placeholder:text-muted-foreground/70",
-                )}
-                style={{
-                  width: `${Math.max(100, slotValue.length * 10 + 24)}px`,
-                }}
-              />
-            );
-          })}
+                if (segment.kind === "text") {
+                  return <span key={index}>{segment.content}</span>;
+                }
+                const slot = slotById.get(segment.id);
+                if (!slot) return null;
+                const slotValue = value[slot.id] ?? "";
+                return (
+                  <input
+                    key={`${slot.id}-${index}`}
+                    type="text"
+                    placeholder={slot.placeholder}
+                    aria-label={slot.placeholder}
+                    value={slotValue}
+                    onChange={(event) => setSlot(slot.id, event.target.value)}
+                    className={cn(
+                      "mx-1 inline-block min-w-[100px] border-0 border-b-2 bg-transparent px-1 py-0.5 text-base font-semibold text-primary outline-hidden transition-colors",
+                      slotValue ? "border-primary" : "border-border",
+                      "placeholder:font-normal placeholder:text-muted-foreground/70",
+                    )}
+                    style={{
+                      width: `${Math.max(100, slotValue.length * 10 + 24)}px`,
+                    }}
+                  />
+                );
+              })}
             </div>
           </MotionItem>
         </MotionStage>
         {allFilled ? <SuccessSummary>{completeMessage}</SuccessSummary> : null}
-      </CardContent>
-    </MotionCard>
+      </div>
+    </QuestionCard>
   );
 }

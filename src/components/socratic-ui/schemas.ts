@@ -109,3 +109,59 @@ export type NegationSelectQuestion = z.infer<
 export type NegationSelectResponse = z.infer<
   typeof negationSelectResponseSchema
 >;
+
+// ─── QuestionSequence ────────────────────────────────────────────────────────
+//
+// A sequence chains other Socratic questions and asks them one at a time.
+// Items are strictly the five single-question kinds — sequences cannot
+// nest sequences (kept the type shallow so `SocraticNode` stays a flat
+// discriminated union).
+
+const questionSequenceItemNodeSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("single-select"),
+    props: singleSelectQuestionSchema,
+  }),
+  z.object({
+    kind: z.literal("multi-select"),
+    props: multiSelectQuestionSchema,
+  }),
+  z.object({
+    kind: z.literal("priority-rank"),
+    props: priorityRankQuestionSchema,
+  }),
+  z.object({
+    kind: z.literal("fill-blank"),
+    props: fillBlankQuestionSchema,
+  }),
+  z.object({
+    kind: z.literal("negation-select"),
+    props: negationSelectQuestionSchema,
+  }),
+]);
+
+export const questionSequenceQuestionSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        id: z.string(),
+        node: questionSequenceItemNodeSchema,
+      }),
+    )
+    .min(1),
+});
+
+export const questionSequenceResponseSchema = z.object({
+  /** Map of item id → answer shape of the corresponding child question. */
+  answers: z.record(z.string(), z.unknown()),
+});
+
+export type QuestionSequenceQuestion = z.infer<
+  typeof questionSequenceQuestionSchema
+>;
+export type QuestionSequenceResponse = z.infer<
+  typeof questionSequenceResponseSchema
+>;
+export type QuestionSequenceItemNode = z.infer<
+  typeof questionSequenceItemNodeSchema
+>;

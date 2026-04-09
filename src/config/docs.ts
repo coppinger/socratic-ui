@@ -46,7 +46,7 @@ export const docsNav: DocsNavGroup[] = [
         title: "Priority Rank",
         href: "/docs/components/priority-rank",
         description:
-          "Tap items in priority order. Ranked cards get numbered indicators; unranked cards stay dashed.",
+          "Drag items to reorder your priorities. Numbered rows reflect the current ranking.",
       },
       {
         title: "Fill Blank",
@@ -59,6 +59,12 @@ export const docsNav: DocsNavGroup[] = [
         href: "/docs/components/negation-select",
         description:
           "Strike-through elimination — pick what you definitely don't want.",
+      },
+      {
+        title: "Question Sequence",
+        href: "/docs/components/question-sequence",
+        description:
+          "Chain multiple Socratic components into a one-question-at-a-time flow with pagination, skip/next actions, and keyboard navigation.",
       },
     ],
   },

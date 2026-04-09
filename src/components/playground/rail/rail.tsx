@@ -82,6 +82,7 @@ export function Rail({
             <Button
               variant="outline"
               size="sm"
+              nativeButton={false}
               render={<Link href={`/docs/components/${componentSlug}`} />}
             >
               <BookOpenIcon />

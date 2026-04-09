@@ -8,6 +8,7 @@ import type {
   multiSelectQuestionSchema,
   negationSelectQuestionSchema,
   priorityRankQuestionSchema,
+  questionSequenceQuestionSchema,
   singleSelectQuestionSchema,
 } from "@/components/socratic-ui/schemas";
 
@@ -15,6 +16,7 @@ import { fillBlankEntry } from "./entries/fill-blank";
 import { multiSelectEntry } from "./entries/multi-select";
 import { negationSelectEntry } from "./entries/negation-select";
 import { priorityRankEntry } from "./entries/priority-rank";
+import { questionSequenceEntry } from "./entries/question-sequence";
 import { singleSelectEntry } from "./entries/single-select";
 
 export type SocraticNode =
@@ -25,6 +27,10 @@ export type SocraticNode =
   | {
       kind: "negation-select";
       props: z.infer<typeof negationSelectQuestionSchema>;
+    }
+  | {
+      kind: "question-sequence";
+      props: z.infer<typeof questionSequenceQuestionSchema>;
     };
 
 export type SocraticKind = SocraticNode["kind"];
@@ -129,7 +135,8 @@ export type AnyPlaygroundEntry =
   | PlaygroundEntry<"multi-select">
   | PlaygroundEntry<"priority-rank">
   | PlaygroundEntry<"fill-blank">
-  | PlaygroundEntry<"negation-select">;
+  | PlaygroundEntry<"negation-select">
+  | PlaygroundEntry<"question-sequence">;
 
 // `Partial` so adding the remaining 12 components later requires only
 // defining a new entry and dropping it in.
@@ -141,6 +148,7 @@ export const playgroundRegistry: Partial<{
   "priority-rank": priorityRankEntry,
   "fill-blank": fillBlankEntry,
   "negation-select": negationSelectEntry,
+  "question-sequence": questionSequenceEntry,
 };
 
 export function getPlaygroundEntries(): ReadonlyArray<AnyPlaygroundEntry> {

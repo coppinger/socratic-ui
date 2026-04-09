@@ -11,7 +11,7 @@ export function PriorityRankDemo() {
     <PriorityRank
       number="03"
       question="Rank what to tackle first"
-      subtitle="Tap items in the order you'd prioritise them"
+      subtitle="Drag items to reorder your priorities"
       items={[
         {
           title: "User research",

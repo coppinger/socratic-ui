@@ -1,9 +1,9 @@
 "use client";
 
-import type * as React from "react";
+import * as React from "react";
+import { ArrowRight, PencilLine } from "lucide-react";
 
-import { CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 import type { SocraticMotion } from "./motion";
 import {
@@ -14,8 +14,15 @@ import {
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
+  OptionRow,
+  QuestionCard,
+  QuestionFooter,
+  QuestionHeader,
   SectionLabel,
+  useRovingFocus,
+  useSequenceQuestion,
 } from "./shared";
+import { CardContent } from "@/components/ui/card";
 
 export type SingleSelectOption = {
   title: string;
@@ -40,7 +47,16 @@ export interface SingleSelectProps {
   iconAlignment?: OptionIconAlignment;
 }
 
-export function SingleSelect({
+export function SingleSelect(props: SingleSelectProps) {
+  // The icon-tile path is a deliberate deviation from the Claude-style
+  // row layout — kept to preserve the playground option-icon toggle.
+  if (props.iconLayout === "vertical") {
+    return <SingleSelectTiles {...props} />;
+  }
+  return <SingleSelectRows {...props} />;
+}
+
+function SingleSelectRows({
   question,
   subtitle,
   options,
@@ -51,7 +67,139 @@ export function SingleSelect({
   freeformValue,
   onFreeformChange,
   motion,
-  iconLayout = "horizontal",
+}: SingleSelectProps) {
+  const showFreeform =
+    freeformPlaceholder !== undefined && onFreeformChange !== undefined;
+  const rowCount = options.length + (showFreeform ? 1 : 0);
+
+  const toggle = (index: number) => {
+    // Freeform row has no toggle semantics — Enter focuses the input
+    // via its own onClick handler.
+    if (showFreeform && index === options.length) return;
+    const option = options[index];
+    if (!option) return;
+    onChange(value === option.title ? null : option.title);
+  };
+
+  const { activeIndex, getItemProps, focusItem } = useRovingFocus({
+    count: rowCount,
+    onActivate: toggle,
+  });
+
+  const focusFirst = React.useCallback(() => focusItem(0), [focusItem]);
+  const sequence = useSequenceQuestion({
+    canSubmit: value !== null,
+    focusFirst,
+  });
+
+  return (
+    <QuestionCard
+      motion={motion}
+      header={
+        <QuestionHeader title={question} subtitle={subtitle} number={number} />
+      }
+      footer={sequence ? <QuestionFooter /> : null}
+    >
+      <MotionStage motion={motion} className="divide-y divide-border/60">
+        {options.map((option, index) => {
+          const selected = value === option.title;
+          return (
+            <MotionItem motion={motion} key={option.title}>
+              <OptionRow
+                title={option.title}
+                subtitle={option.subtitle}
+                selected={selected}
+                focused={activeIndex === index}
+                onSelect={() => toggle(index)}
+                leading={{ kind: "number", value: index + 1 }}
+                trailing={
+                  selected ? <ArrowRight className="size-4" /> : null
+                }
+                rowProps={getItemProps(index)}
+              />
+            </MotionItem>
+          );
+        })}
+        {showFreeform ? (
+          <MotionItem motion={motion}>
+            <FreeformRow
+              placeholder={freeformPlaceholder!}
+              value={freeformValue ?? ""}
+              onChange={onFreeformChange!}
+              focused={activeIndex === options.length}
+              rowProps={getItemProps(options.length)}
+            />
+          </MotionItem>
+        ) : null}
+      </MotionStage>
+    </QuestionCard>
+  );
+}
+
+function FreeformRow({
+  placeholder,
+  value,
+  onChange,
+  focused,
+  rowProps,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  focused: boolean;
+  rowProps: ReturnType<ReturnType<typeof useRovingFocus>["getItemProps"]>;
+}) {
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const { ref: rovingRef, ...restRowProps } = rowProps;
+
+  return (
+    <button
+      type="button"
+      ref={rovingRef}
+      {...restRowProps}
+      onClick={() => inputRef.current?.focus()}
+      className={cn(
+        "group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors",
+        "outline-none focus-visible:bg-muted/60",
+        focused && "bg-muted/60",
+      )}
+    >
+      <span
+        aria-hidden
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground"
+      >
+        <PencilLine className="size-4" />
+      </span>
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        aria-label={placeholder}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+        className={cn(
+          "min-w-0 flex-1 border-0 bg-transparent text-[15px] font-semibold text-foreground outline-none",
+          "placeholder:font-normal placeholder:text-muted-foreground",
+        )}
+      />
+    </button>
+  );
+}
+
+function SingleSelectTiles({
+  question,
+  subtitle,
+  options,
+  value,
+  onChange,
+  number,
+  freeformPlaceholder,
+  freeformValue,
+  onFreeformChange,
+  motion,
+  iconLayout = "vertical",
   iconAlignment = "left",
 }: SingleSelectProps) {
   const showFreeform =
@@ -62,12 +210,6 @@ export function SingleSelect({
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
         <MotionStage motion={motion} className={optionListClass(iconLayout)}>
-          {/*
-            Tapping an already-selected option deselects it (clears to null).
-            This diverges from the reference JSX, which is commit-only — kept
-            here as an explicit affordance so a user can change their mind
-            without picking something else first.
-          */}
           {options.map((option) => (
             <MotionItem motion={motion} key={option.title}>
               <OptionCard
@@ -85,12 +227,12 @@ export function SingleSelect({
           ))}
         </MotionStage>
         {showFreeform ? (
-          <Textarea
+          <textarea
             placeholder={freeformPlaceholder}
             value={freeformValue ?? ""}
             onChange={(event) => onFreeformChange(event.target.value)}
             rows={2}
-            className="mt-3 resize-y bg-muted"
+            className="mt-3 w-full resize-y rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
           />
         ) : null}
       </CardContent>

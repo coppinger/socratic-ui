@@ -50,6 +50,7 @@ export function ComponentPage({
           {playgroundSlug ? (
             <Button
               variant="outline"
+              nativeButton={false}
               render={<Link href={`/playground?component=${playgroundSlug}`} />}
             >
               <SlidersHorizontalIcon />
