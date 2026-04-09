@@ -9,6 +9,7 @@ import type { SocraticMotion } from "./motion";
 import {
   MotionItem,
   MotionStage,
+  OPEN_QUESTIONS_HINTS,
   QuestionCard,
   QuestionFooter,
   QuestionHeader,
@@ -64,7 +65,11 @@ export function OpenQuestions({
     stackRef.current?.querySelector("textarea")?.focus();
   }, []);
 
-  const sequence = useSequenceQuestion({ canSubmit: allFilled, focusFirst });
+  const sequence = useSequenceQuestion({
+    canSubmit: allFilled,
+    focusFirst,
+    hints: OPEN_QUESTIONS_HINTS,
+  });
 
   return (
     <QuestionCard

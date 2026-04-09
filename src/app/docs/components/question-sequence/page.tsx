@@ -16,46 +16,56 @@ const demoSource = fs.readFileSync(
 );
 
 const usageSource = `import {
-  QuestionSequence,
+  SequenceShell,
+  useQuestionSequence,
 } from "@/components/socratic-ui/question-sequence";
-import {
-  MULTI_SELECT_HINTS,
-  SINGLE_SELECT_HINTS,
-} from "@/components/socratic-ui/shared";
 import { SingleSelect } from "@/components/socratic-ui/single-select";
 import { MultiSelect } from "@/components/socratic-ui/multi-select";
 
-<QuestionSequence onComplete={(answers) => console.log(answers)}>
-  <QuestionSequence.Item id="vibe" hints={SINGLE_SELECT_HINTS}>
-    {({ value, onChange }) => (
-      <SingleSelect
-        question="What's your vibe right now?"
-        options={[{ title: "Building mode" }, { title: "Planning mode" }]}
-        value={value as string | null ?? null}
-        onChange={(next) => onChange(next)}
-      />
-    )}
-  </QuestionSequence.Item>
-  <QuestionSequence.Item id="tools" hints={MULTI_SELECT_HINTS}>
-    {({ value, onChange }) => (
-      <MultiSelect
-        question="Which of these are you actively using?"
-        options={[{ title: "Claude Code" }, { title: "Todoist" }]}
-        value={(value as string[] | undefined) ?? []}
-        onChange={(next) => onChange(next)}
-      />
-    )}
-  </QuestionSequence.Item>
-</QuestionSequence>
+function MySequence() {
+  const seq = useQuestionSequence({
+    ids: ["vibe", "tools"],
+    onComplete: (answers) => console.log(answers),
+  });
+
+  return (
+    <SequenceShell
+      controller={seq}
+      render={(currentId) => {
+        switch (currentId) {
+          case "vibe":
+            return (
+              <SingleSelect
+                question="What's your vibe right now?"
+                options={[{ title: "Building mode" }, { title: "Planning mode" }]}
+                {...seq.bind<string | null>("vibe", null)}
+              />
+            );
+          case "tools":
+            return (
+              <MultiSelect
+                question="Which of these are you actively using?"
+                options={[{ title: "Claude Code" }, { title: "Todoist" }]}
+                {...seq.bind<string[]>("tools", [])}
+              />
+            );
+        }
+      }}
+    />
+  );
+}
 `;
 
+// The Question Sequence primitive splits into a hook + a shell component.
+// The props table below documents `useQuestionSequence`'s options; see the
+// usage snippet for how they fit together with `<SequenceShell>`.
 const props: PropDef[] = [
   {
-    name: "children",
-    type: "<QuestionSequence.Item>…</QuestionSequence.Item>",
+    name: "ids",
+    type: "string[]",
     required: true,
     description:
-      "One or more `QuestionSequence.Item` children. Each accepts an `id` prop and a render-prop child that receives `{ value, onChange }` bound to the sequence's answers map.",
+      "Ordered list of question ids. Drives pagination and keys the transition between steps.",
   },
   {
     name: "defaultAnswers",
@@ -67,12 +77,13 @@ const props: PropDef[] = [
     name: "answers",
     type: "Record<string, unknown>",
     description:
-      "Controlled answers map. Overrides `defaultAnswers` when provided.",
+      "Controlled answers map. When provided, the hook becomes a pure dispatcher — the consumer owns state.",
   },
   {
-    name: "onChange",
+    name: "onAnswerChange",
     type: "(id: string, value: unknown) => void",
-    description: "Fires whenever a question's answer changes.",
+    description:
+      "Fires whenever a question's answer changes, regardless of whether the hook is controlled.",
   },
   {
     name: "onComplete",
@@ -85,12 +96,6 @@ const props: PropDef[] = [
     type: "() => void",
     description:
       "Fires when the user closes the sequence via the × button or by pressing Esc on the terminal question.",
-  },
-  {
-    name: "motion",
-    type: "SocraticMotion",
-    description:
-      "Shared motion config threaded through the rendered question's entrance animation.",
   },
 ];
 

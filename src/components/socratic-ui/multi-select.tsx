@@ -9,6 +9,7 @@ import {
   MotionCard,
   MotionItem,
   MotionStage,
+  MULTI_SELECT_HINTS,
   OptionCard,
   type OptionIconAlignment,
   type OptionIconLayout,
@@ -44,7 +45,10 @@ export interface MultiSelectProps {
 }
 
 export function MultiSelect(props: MultiSelectProps) {
-  if (props.iconLayout === "vertical") {
+  // See SingleSelect for the rationale: Row chrome has no icon slot, so
+  // the presence of icons has to route through the tile path.
+  const hasIcons = props.options.some((option) => option.icon !== undefined);
+  if (hasIcons || props.iconLayout === "vertical") {
     return <MultiSelectTiles {...props} />;
   }
   return <MultiSelectRows {...props} />;
@@ -82,6 +86,7 @@ function MultiSelectRows({
   const sequence = useSequenceQuestion({
     canSubmit: selected.size > 0,
     focusFirst,
+    hints: MULTI_SELECT_HINTS,
   });
 
   const statusText = (

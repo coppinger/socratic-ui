@@ -1,6 +1,6 @@
 "use client";
 
-import type * as React from "react";
+import * as React from "react";
 
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
 import { FillBlank } from "@/components/socratic-ui/fill-blank";
@@ -9,167 +9,137 @@ import { NegationSelect } from "@/components/socratic-ui/negation-select";
 import { OpenQuestions } from "@/components/socratic-ui/open-questions";
 import { PriorityRank } from "@/components/socratic-ui/priority-rank";
 import {
-  QuestionSequence,
-  type QuestionRenderProps,
+  SequenceShell,
+  useQuestionSequence,
 } from "@/components/socratic-ui/question-sequence";
 import type { QuestionSequenceItemNode } from "@/components/socratic-ui/schemas";
 import { questionSequenceQuestionSchema } from "@/components/socratic-ui/schemas";
-import {
-  FILL_BLANK_HINTS,
-  MULTI_SELECT_HINTS,
-  NEGATION_SELECT_HINTS,
-  OPEN_QUESTIONS_HINTS,
-  PRIORITY_RANK_HINTS,
-  SINGLE_SELECT_HINTS,
-  type KeyboardHint,
-  type OptionIconAlignment,
-  type OptionIconLayout,
+import type {
+  OptionIconAlignment,
+  OptionIconLayout,
 } from "@/components/socratic-ui/shared";
 import { SingleSelect } from "@/components/socratic-ui/single-select";
 
 import type { PlaygroundEntry, RendererProps } from "../registry";
 
-interface ItemDispatch {
-  hints: KeyboardHint[];
-  render: (args: {
-    itemNode: QuestionSequenceItemNode;
-    renderProps: QuestionRenderProps;
-    motion: SocraticMotion | undefined;
-    iconLayout: OptionIconLayout | undefined;
-    iconAlignment: OptionIconAlignment | undefined;
-  }) => React.ReactNode;
-}
-
-// Single source of truth for per-kind keyboard hints + rendering.
-// Adding a new question kind to sequences means adding one entry here
-// and widening `QuestionSequenceItemNode` in schemas.ts.
-const DISPATCH: Record<QuestionSequenceItemNode["kind"], ItemDispatch> = {
-  "single-select": {
-    hints: SINGLE_SELECT_HINTS,
-    render: ({ itemNode, renderProps, motion, iconLayout, iconAlignment }) => {
-      if (itemNode.kind !== "single-select") return null;
+/**
+ * Renders the active item in a schema-driven sequence. Switches on the
+ * node's `kind` and binds it to the shared answers map via the
+ * controller's `bind` helper — no per-item dispatch table needed since
+ * the hook owns state and each input declares its own sequence chrome +
+ * keyboard hints via `useSequenceQuestion`.
+ */
+function renderItem({
+  node,
+  value,
+  onChange,
+  motion,
+  iconLayout,
+  iconAlignment,
+}: {
+  node: QuestionSequenceItemNode;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  motion: SocraticMotion | undefined;
+  iconLayout: OptionIconLayout | undefined;
+  iconAlignment: OptionIconAlignment | undefined;
+}) {
+  switch (node.kind) {
+    case "single-select":
       return (
         <SingleSelect
-          {...itemNode.props}
-          value={(renderProps.value as string | null) ?? null}
-          onChange={renderProps.onChange}
+          {...node.props}
+          value={(value as string | null | undefined) ?? null}
+          onChange={onChange}
           motion={motion}
           iconLayout={iconLayout}
           iconAlignment={iconAlignment}
         />
       );
-    },
-  },
-  "multi-select": {
-    hints: MULTI_SELECT_HINTS,
-    render: ({ itemNode, renderProps, motion, iconLayout, iconAlignment }) => {
-      if (itemNode.kind !== "multi-select") return null;
+    case "multi-select":
       return (
         <MultiSelect
-          {...itemNode.props}
-          value={(renderProps.value as string[] | undefined) ?? []}
-          onChange={renderProps.onChange}
+          {...node.props}
+          value={(value as string[] | undefined) ?? []}
+          onChange={onChange}
           motion={motion}
           iconLayout={iconLayout}
           iconAlignment={iconAlignment}
         />
       );
-    },
-  },
-  "priority-rank": {
-    hints: PRIORITY_RANK_HINTS,
-    render: ({ itemNode, renderProps, motion, iconLayout, iconAlignment }) => {
-      if (itemNode.kind !== "priority-rank") return null;
+    case "priority-rank":
       return (
         <PriorityRank
-          {...itemNode.props}
-          value={(renderProps.value as string[] | undefined) ?? []}
-          onChange={renderProps.onChange}
+          {...node.props}
+          value={(value as string[] | undefined) ?? []}
+          onChange={onChange}
           motion={motion}
           iconLayout={iconLayout}
           iconAlignment={iconAlignment}
         />
       );
-    },
-  },
-  "fill-blank": {
-    hints: FILL_BLANK_HINTS,
-    render: ({ itemNode, renderProps, motion }) => {
-      if (itemNode.kind !== "fill-blank") return null;
+    case "fill-blank":
       return (
         <FillBlank
-          {...itemNode.props}
-          value={
-            (renderProps.value as Record<string, string> | undefined) ?? {}
-          }
-          onChange={renderProps.onChange}
+          {...node.props}
+          value={(value as Record<string, string> | undefined) ?? {}}
+          onChange={onChange}
           motion={motion}
         />
       );
-    },
-  },
-  "negation-select": {
-    hints: NEGATION_SELECT_HINTS,
-    render: ({ itemNode, renderProps, motion, iconLayout, iconAlignment }) => {
-      if (itemNode.kind !== "negation-select") return null;
+    case "negation-select":
       return (
         <NegationSelect
-          {...itemNode.props}
-          value={(renderProps.value as string[] | undefined) ?? []}
-          onChange={renderProps.onChange}
+          {...node.props}
+          value={(value as string[] | undefined) ?? []}
+          onChange={onChange}
           motion={motion}
           iconLayout={iconLayout}
           iconAlignment={iconAlignment}
         />
       );
-    },
-  },
-  "open-questions": {
-    hints: OPEN_QUESTIONS_HINTS,
-    render: ({ itemNode, renderProps, motion }) => {
-      if (itemNode.kind !== "open-questions") return null;
+    case "open-questions":
       return (
         <OpenQuestions
-          {...itemNode.props}
-          value={
-            (renderProps.value as Record<string, string> | undefined) ?? {}
-          }
-          onChange={renderProps.onChange}
+          {...node.props}
+          value={(value as Record<string, string> | undefined) ?? {}}
+          onChange={onChange}
           motion={motion}
         />
       );
-    },
-  },
-};
+  }
+}
 
 function QuestionSequenceRenderer({
   node,
   motion,
   optionIcons,
 }: RendererProps<"question-sequence">) {
+  const items = node.props.items;
+  const nodeById = React.useMemo(
+    () => new Map(items.map((item) => [item.id, item.node])),
+    [items],
+  );
+  const ids = React.useMemo(() => items.map((item) => item.id), [items]);
+
+  const seq = useQuestionSequence({ ids });
+
   return (
-    <QuestionSequence>
-      {node.props.items.map((item) => {
-        const dispatch = DISPATCH[item.node.kind];
-        return (
-          <QuestionSequence.Item
-            key={item.id}
-            id={item.id}
-            hints={dispatch.hints}
-          >
-            {(renderProps) =>
-              dispatch.render({
-                itemNode: item.node,
-                renderProps,
-                motion,
-                iconLayout: optionIcons?.layout,
-                iconAlignment: optionIcons?.alignment,
-              })
-            }
-          </QuestionSequence.Item>
-        );
-      })}
-    </QuestionSequence>
+    <SequenceShell
+      controller={seq}
+      render={(currentId) => {
+        const itemNode = nodeById.get(currentId);
+        if (!itemNode) return null;
+        return renderItem({
+          node: itemNode,
+          value: seq.answers[currentId],
+          onChange: (value) => seq.setAnswer(currentId, value),
+          motion,
+          iconLayout: optionIcons?.layout,
+          iconAlignment: optionIcons?.alignment,
+        });
+      }}
+    />
   );
 }
 

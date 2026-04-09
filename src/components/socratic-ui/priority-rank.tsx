@@ -16,6 +16,7 @@ import {
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
+  PRIORITY_RANK_HINTS,
   QuestionCard,
   QuestionFooter,
   QuestionHeader,
@@ -82,7 +83,10 @@ function PriorityRankRows({
   // Priority rank has no invalid state — reordering is always ready to
   // submit. No keyboard roving here (drag handles own focus), so
   // `focusFirst` is omitted.
-  const sequence = useSequenceQuestion({ canSubmit: true });
+  const sequence = useSequenceQuestion({
+    canSubmit: true,
+    hints: PRIORITY_RANK_HINTS,
+  });
 
   return (
     <QuestionCard

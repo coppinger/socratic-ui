@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 import type { SocraticMotion } from "./motion";
 import {
+  FILL_BLANK_HINTS,
   MotionItem,
   MotionStage,
   QuestionCard,
@@ -99,7 +100,10 @@ export function FillBlank({
 
   const allFilled = slots.every((slot) => (value[slot.id] ?? "").trim() !== "");
 
-  const sequence = useSequenceQuestion({ canSubmit: allFilled });
+  const sequence = useSequenceQuestion({
+    canSubmit: allFilled,
+    hints: FILL_BLANK_HINTS,
+  });
 
   return (
     <QuestionCard

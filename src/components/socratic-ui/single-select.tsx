@@ -19,6 +19,7 @@ import {
   QuestionFooter,
   QuestionHeader,
   SectionLabel,
+  SINGLE_SELECT_HINTS,
   useRovingFocus,
   useSequenceQuestion,
 } from "./shared";
@@ -49,8 +50,12 @@ export interface SingleSelectProps {
 
 export function SingleSelect(props: SingleSelectProps) {
   // The icon-tile path is a deliberate deviation from the Claude-style
-  // row layout — kept to preserve the playground option-icon toggle.
-  if (props.iconLayout === "vertical") {
+  // row layout — routed in whenever options carry icons (regardless of
+  // horizontal/vertical) or the caller explicitly asks for vertical
+  // tiles. Row chrome has no icon slot, so if we stayed in Rows here the
+  // playground option-icon toggle would only work with layout=vertical.
+  const hasIcons = props.options.some((option) => option.icon !== undefined);
+  if (hasIcons || props.iconLayout === "vertical") {
     return <SingleSelectTiles {...props} />;
   }
   return <SingleSelectRows {...props} />;
@@ -90,6 +95,7 @@ function SingleSelectRows({
   const sequence = useSequenceQuestion({
     canSubmit: value !== null,
     focusFirst,
+    hints: SINGLE_SELECT_HINTS,
   });
 
   return (

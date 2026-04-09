@@ -10,6 +10,7 @@ import {
   MotionCard,
   MotionItem,
   MotionStage,
+  NEGATION_SELECT_HINTS,
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
@@ -42,7 +43,10 @@ export interface NegationSelectProps {
 }
 
 export function NegationSelect(props: NegationSelectProps) {
-  if (props.iconLayout === "vertical") {
+  // See SingleSelect for the rationale: Row chrome has no icon slot, so
+  // the presence of icons has to route through the tile path.
+  const hasIcons = props.options.some((option) => option.icon !== undefined);
+  if (hasIcons || props.iconLayout === "vertical") {
     return <NegationSelectTiles {...props} />;
   }
   return <NegationSelectRows {...props} />;
@@ -78,6 +82,7 @@ function NegationSelectRows({
   const sequence = useSequenceQuestion({
     canSubmit: eliminated.size > 0,
     focusFirst,
+    hints: NEGATION_SELECT_HINTS,
   });
 
   const remaining = options.length - eliminated.size;
