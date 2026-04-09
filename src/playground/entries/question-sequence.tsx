@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
+import { AgreementSpectrum } from "@/components/socratic-ui/agreement-spectrum";
 import { FillBlank } from "@/components/socratic-ui/fill-blank";
 import { MultiSelect } from "@/components/socratic-ui/multi-select";
 import { NegationSelect } from "@/components/socratic-ui/negation-select";
@@ -20,6 +21,10 @@ import type {
   OptionIconLayout,
 } from "@/components/socratic-ui/shared";
 import { SingleSelect } from "@/components/socratic-ui/single-select";
+import {
+  Spectrum,
+  spectrumInitialValue,
+} from "@/components/socratic-ui/spectrum";
 
 import type { PlaygroundEntry, RendererProps } from "../registry";
 
@@ -108,6 +113,26 @@ function renderItem({
           motion={motion}
         />
       );
+    case "spectrum":
+      return (
+        <Spectrum
+          {...node.props}
+          value={
+            (value as number | undefined) ?? spectrumInitialValue(node.props)
+          }
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "agreement-spectrum":
+      return (
+        <AgreementSpectrum
+          {...node.props}
+          value={(value as Record<string, number> | undefined) ?? {}}
+          onChange={onChange}
+          motion={motion}
+        />
+      );
   }
 }
 
@@ -167,6 +192,8 @@ function withGeneratedIcons(
       };
     case "fill-blank":
     case "open-questions":
+    case "spectrum":
+    case "agreement-spectrum":
       return node;
   }
 }

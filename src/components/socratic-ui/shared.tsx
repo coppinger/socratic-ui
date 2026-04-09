@@ -33,6 +33,8 @@ export {
   FILL_BLANK_HINTS,
   NEGATION_SELECT_HINTS,
   OPEN_QUESTIONS_HINTS,
+  SPECTRUM_HINTS,
+  AGREEMENT_SPECTRUM_HINTS,
   type KeyboardHint,
 } from "./shared/keyboard-hint";
 export {

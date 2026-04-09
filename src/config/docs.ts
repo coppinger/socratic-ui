@@ -67,6 +67,18 @@ export const docsNav: DocsNavGroup[] = [
           "Stack of open-ended questions, each with its own auto-growing textarea.",
       },
       {
+        title: "Spectrum",
+        href: "/docs/components/spectrum",
+        description:
+          "Slider between two labeled poles — surfaces shades of grey that radio buttons miss.",
+      },
+      {
+        title: "Agreement Spectrum",
+        href: "/docs/components/agreement-spectrum",
+        description:
+          "Likert-rate a batch of statements, optionally compared to how others answered.",
+      },
+      {
         title: "Question Sequence",
         href: "/docs/components/question-sequence",
         description:

@@ -110,6 +110,67 @@ export type NegationSelectResponse = z.infer<
   typeof negationSelectResponseSchema
 >;
 
+// ─── Spectrum ────────────────────────────────────────────────────────────────
+
+export const spectrumQuestionSchema = z.object({
+  question: z.string(),
+  subtitle: z.string().optional(),
+  /** Left pole of the slider (low end). */
+  leftLabel: z.string(),
+  leftDescription: z.string().optional(),
+  /** Right pole of the slider (high end). */
+  rightLabel: z.string(),
+  rightDescription: z.string().optional(),
+  min: z.number().default(0),
+  max: z.number().default(100),
+  step: z.number().positive().default(1),
+  /** Initial slider position. Defaults to the midpoint. */
+  defaultValue: z.number().optional(),
+});
+
+export const spectrumResponseSchema = z.object({
+  value: z.number(),
+});
+
+export type SpectrumQuestion = z.infer<typeof spectrumQuestionSchema>;
+export type SpectrumResponse = z.infer<typeof spectrumResponseSchema>;
+
+// ─── AgreementSpectrum ───────────────────────────────────────────────────────
+
+const agreementStatementSchema = z.object({
+  /** Stable identifier used as the key in the response object. */
+  id: z.string(),
+  text: z.string(),
+  /**
+   * Optional "% of others who agree" figure to render alongside the user's
+   * answer for social comparison. 0-100.
+   */
+  crowd: z.number().min(0).max(100).optional(),
+});
+
+export const agreementSpectrumQuestionSchema = z.object({
+  question: z.string(),
+  subtitle: z.string().optional(),
+  statements: z.array(agreementStatementSchema).min(1),
+  /**
+   * Labels for the 5-point Likert scale, from "Strongly disagree" to
+   * "Strongly agree". Defaults applied at component render.
+   */
+  scaleLabels: z.array(z.string()).length(5).optional(),
+});
+
+export const agreementSpectrumResponseSchema = z.object({
+  /** Map of statement id → 0-4 scale index (0 = strongly disagree). */
+  ratings: z.record(z.string(), z.number().int().min(0).max(4)),
+});
+
+export type AgreementSpectrumQuestion = z.infer<
+  typeof agreementSpectrumQuestionSchema
+>;
+export type AgreementSpectrumResponse = z.infer<
+  typeof agreementSpectrumResponseSchema
+>;
+
 // ─── OpenQuestions ───────────────────────────────────────────────────────────
 
 const openQuestionPromptSchema = z.object({
@@ -164,6 +225,14 @@ const questionSequenceItemNodeSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("open-questions"),
     props: openQuestionsQuestionSchema,
+  }),
+  z.object({
+    kind: z.literal("spectrum"),
+    props: spectrumQuestionSchema,
+  }),
+  z.object({
+    kind: z.literal("agreement-spectrum"),
+    props: agreementSpectrumQuestionSchema,
   }),
 ]);
 

@@ -4,6 +4,7 @@ import type { z } from "zod";
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
 import type { OptionIconSettings } from "@/components/socratic-ui/shared";
 import type {
+  agreementSpectrumQuestionSchema,
   fillBlankQuestionSchema,
   multiSelectQuestionSchema,
   negationSelectQuestionSchema,
@@ -11,8 +12,10 @@ import type {
   priorityRankQuestionSchema,
   questionSequenceQuestionSchema,
   singleSelectQuestionSchema,
+  spectrumQuestionSchema,
 } from "@/components/socratic-ui/schemas";
 
+import { agreementSpectrumEntry } from "./entries/agreement-spectrum";
 import { fillBlankEntry } from "./entries/fill-blank";
 import { multiSelectEntry } from "./entries/multi-select";
 import { negationSelectEntry } from "./entries/negation-select";
@@ -20,6 +23,7 @@ import { openQuestionsEntry } from "./entries/open-questions";
 import { priorityRankEntry } from "./entries/priority-rank";
 import { questionSequenceEntry } from "./entries/question-sequence";
 import { singleSelectEntry } from "./entries/single-select";
+import { spectrumEntry } from "./entries/spectrum";
 
 export type SocraticNode =
   | { kind: "single-select"; props: z.infer<typeof singleSelectQuestionSchema> }
@@ -33,6 +37,11 @@ export type SocraticNode =
   | {
       kind: "open-questions";
       props: z.infer<typeof openQuestionsQuestionSchema>;
+    }
+  | { kind: "spectrum"; props: z.infer<typeof spectrumQuestionSchema> }
+  | {
+      kind: "agreement-spectrum";
+      props: z.infer<typeof agreementSpectrumQuestionSchema>;
     }
   | {
       kind: "question-sequence";
@@ -143,6 +152,8 @@ export type AnyPlaygroundEntry =
   | PlaygroundEntry<"fill-blank">
   | PlaygroundEntry<"negation-select">
   | PlaygroundEntry<"open-questions">
+  | PlaygroundEntry<"spectrum">
+  | PlaygroundEntry<"agreement-spectrum">
   | PlaygroundEntry<"question-sequence">;
 
 // `Partial` so adding the remaining 12 components later requires only
@@ -156,6 +167,8 @@ export const playgroundRegistry: Partial<{
   "fill-blank": fillBlankEntry,
   "negation-select": negationSelectEntry,
   "open-questions": openQuestionsEntry,
+  spectrum: spectrumEntry,
+  "agreement-spectrum": agreementSpectrumEntry,
   "question-sequence": questionSequenceEntry,
 };
 

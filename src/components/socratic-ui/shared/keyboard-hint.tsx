@@ -73,3 +73,16 @@ export const OPEN_QUESTIONS_HINTS: KeyboardHint[] = [
   { keys: "⌘ Enter", label: "to submit" },
   { keys: "Esc", label: "to skip" },
 ];
+
+export const SPECTRUM_HINTS: KeyboardHint[] = [
+  { keys: "← →", label: "to adjust" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
+
+export const AGREEMENT_SPECTRUM_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "between statements" },
+  { keys: "← →", label: "to rate" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
