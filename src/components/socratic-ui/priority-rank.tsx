@@ -50,7 +50,10 @@ export interface PriorityRankProps {
 }
 
 export function PriorityRank(props: PriorityRankProps) {
-  if (props.iconLayout === "vertical") {
+  // See SingleSelect for the rationale: Row chrome has no icon slot, so
+  // the presence of icons has to route through the tile path.
+  const hasIcons = props.items.some((item) => item.icon !== undefined);
+  if (hasIcons || props.iconLayout === "vertical") {
     return <PriorityRankTiles {...props} />;
   }
   return <PriorityRankRows {...props} />;

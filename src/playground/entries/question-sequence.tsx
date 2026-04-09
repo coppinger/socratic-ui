@@ -7,6 +7,7 @@ import { FillBlank } from "@/components/socratic-ui/fill-blank";
 import { MultiSelect } from "@/components/socratic-ui/multi-select";
 import { NegationSelect } from "@/components/socratic-ui/negation-select";
 import { OpenQuestions } from "@/components/socratic-ui/open-questions";
+import { generatedOptionIcon } from "@/components/socratic-ui/option-icons";
 import { PriorityRank } from "@/components/socratic-ui/priority-rank";
 import {
   SequenceShell,
@@ -110,15 +111,82 @@ function renderItem({
   }
 }
 
+/**
+ * Injects a generated lucide icon per option/item position for the
+ * option-bearing node kinds when the playground toggle is on. Mirrors
+ * `useGeneratedOptionIcons` used by the flat entries, but inline so it
+ * can map across the sequence's heterogeneous node list.
+ */
+function withGeneratedIcons(
+  node: QuestionSequenceItemNode,
+): QuestionSequenceItemNode {
+  switch (node.kind) {
+    case "single-select":
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          options: node.props.options.map((option, index) => ({
+            ...option,
+            icon: generatedOptionIcon(index),
+          })),
+        },
+      };
+    case "multi-select":
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          options: node.props.options.map((option, index) => ({
+            ...option,
+            icon: generatedOptionIcon(index),
+          })),
+        },
+      };
+    case "negation-select":
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          options: node.props.options.map((option, index) => ({
+            ...option,
+            icon: generatedOptionIcon(index),
+          })),
+        },
+      };
+    case "priority-rank":
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          items: node.props.items.map((item, index) => ({
+            ...item,
+            icon: generatedOptionIcon(index),
+          })),
+        },
+      };
+    case "fill-blank":
+    case "open-questions":
+      return node;
+  }
+}
+
 function QuestionSequenceRenderer({
   node,
   motion,
   optionIcons,
 }: RendererProps<"question-sequence">) {
   const items = node.props.items;
+  const showIcons = optionIcons?.show ?? false;
   const nodeById = React.useMemo(
-    () => new Map(items.map((item) => [item.id, item.node])),
-    [items],
+    () =>
+      new Map(
+        items.map((item) => [
+          item.id,
+          showIcons ? withGeneratedIcons(item.node) : item.node,
+        ]),
+      ),
+    [items, showIcons],
   );
   const ids = React.useMemo(() => items.map((item) => item.id), [items]);
 
