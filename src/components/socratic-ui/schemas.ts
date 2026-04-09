@@ -110,6 +110,29 @@ export type NegationSelectResponse = z.infer<
   typeof negationSelectResponseSchema
 >;
 
+// ─── OpenQuestions ───────────────────────────────────────────────────────────
+
+const openQuestionPromptSchema = z.object({
+  /** Stable identifier used as the key in the response object. */
+  id: z.string(),
+  text: z.string(),
+  placeholder: z.string().optional(),
+});
+
+export const openQuestionsQuestionSchema = z.object({
+  question: z.string(),
+  subtitle: z.string().optional(),
+  prompts: z.array(openQuestionPromptSchema).min(1),
+});
+
+export const openQuestionsResponseSchema = z.object({
+  /** Map of prompt id → user-entered text. */
+  answers: z.record(z.string(), z.string()),
+});
+
+export type OpenQuestionsQuestion = z.infer<typeof openQuestionsQuestionSchema>;
+export type OpenQuestionsResponse = z.infer<typeof openQuestionsResponseSchema>;
+
 // ─── QuestionSequence ────────────────────────────────────────────────────────
 //
 // A sequence chains other Socratic questions and asks them one at a time.
@@ -137,6 +160,10 @@ const questionSequenceItemNodeSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("negation-select"),
     props: negationSelectQuestionSchema,
+  }),
+  z.object({
+    kind: z.literal("open-questions"),
+    props: openQuestionsQuestionSchema,
   }),
 ]);
 

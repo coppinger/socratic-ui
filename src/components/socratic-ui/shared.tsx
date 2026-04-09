@@ -32,6 +32,7 @@ export {
   PRIORITY_RANK_HINTS,
   FILL_BLANK_HINTS,
   NEGATION_SELECT_HINTS,
+  OPEN_QUESTIONS_HINTS,
   type KeyboardHint,
 } from "./shared/keyboard-hint";
 export {

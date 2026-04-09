@@ -61,6 +61,12 @@ export const docsNav: DocsNavGroup[] = [
           "Strike-through elimination — pick what you definitely don't want.",
       },
       {
+        title: "Open Questions",
+        href: "/docs/components/open-questions",
+        description:
+          "Stack of open-ended questions, each with its own auto-growing textarea.",
+      },
+      {
         title: "Question Sequence",
         href: "/docs/components/question-sequence",
         description:

@@ -6,6 +6,7 @@ import type { SocraticMotion } from "@/components/socratic-ui/motion";
 import { FillBlank } from "@/components/socratic-ui/fill-blank";
 import { MultiSelect } from "@/components/socratic-ui/multi-select";
 import { NegationSelect } from "@/components/socratic-ui/negation-select";
+import { OpenQuestions } from "@/components/socratic-ui/open-questions";
 import { PriorityRank } from "@/components/socratic-ui/priority-rank";
 import {
   QuestionSequence,
@@ -17,6 +18,7 @@ import {
   FILL_BLANK_HINTS,
   MULTI_SELECT_HINTS,
   NEGATION_SELECT_HINTS,
+  OPEN_QUESTIONS_HINTS,
   PRIORITY_RANK_HINTS,
   SINGLE_SELECT_HINTS,
   type KeyboardHint,
@@ -118,6 +120,22 @@ const DISPATCH: Record<QuestionSequenceItemNode["kind"], ItemDispatch> = {
           motion={motion}
           iconLayout={iconLayout}
           iconAlignment={iconAlignment}
+        />
+      );
+    },
+  },
+  "open-questions": {
+    hints: OPEN_QUESTIONS_HINTS,
+    render: ({ itemNode, renderProps, motion }) => {
+      if (itemNode.kind !== "open-questions") return null;
+      return (
+        <OpenQuestions
+          {...itemNode.props}
+          value={
+            (renderProps.value as Record<string, string> | undefined) ?? {}
+          }
+          onChange={renderProps.onChange}
+          motion={motion}
         />
       );
     },

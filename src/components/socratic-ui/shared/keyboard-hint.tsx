@@ -67,3 +67,9 @@ export const NEGATION_SELECT_HINTS: KeyboardHint[] = [
   { keys: "⌘ Enter", label: "to submit" },
   { keys: "Esc", label: "to skip" },
 ];
+
+export const OPEN_QUESTIONS_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "to move between fields" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];

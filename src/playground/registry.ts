@@ -7,6 +7,7 @@ import type {
   fillBlankQuestionSchema,
   multiSelectQuestionSchema,
   negationSelectQuestionSchema,
+  openQuestionsQuestionSchema,
   priorityRankQuestionSchema,
   questionSequenceQuestionSchema,
   singleSelectQuestionSchema,
@@ -15,6 +16,7 @@ import type {
 import { fillBlankEntry } from "./entries/fill-blank";
 import { multiSelectEntry } from "./entries/multi-select";
 import { negationSelectEntry } from "./entries/negation-select";
+import { openQuestionsEntry } from "./entries/open-questions";
 import { priorityRankEntry } from "./entries/priority-rank";
 import { questionSequenceEntry } from "./entries/question-sequence";
 import { singleSelectEntry } from "./entries/single-select";
@@ -27,6 +29,10 @@ export type SocraticNode =
   | {
       kind: "negation-select";
       props: z.infer<typeof negationSelectQuestionSchema>;
+    }
+  | {
+      kind: "open-questions";
+      props: z.infer<typeof openQuestionsQuestionSchema>;
     }
   | {
       kind: "question-sequence";
@@ -136,6 +142,7 @@ export type AnyPlaygroundEntry =
   | PlaygroundEntry<"priority-rank">
   | PlaygroundEntry<"fill-blank">
   | PlaygroundEntry<"negation-select">
+  | PlaygroundEntry<"open-questions">
   | PlaygroundEntry<"question-sequence">;
 
 // `Partial` so adding the remaining 12 components later requires only
@@ -148,6 +155,7 @@ export const playgroundRegistry: Partial<{
   "priority-rank": priorityRankEntry,
   "fill-blank": fillBlankEntry,
   "negation-select": negationSelectEntry,
+  "open-questions": openQuestionsEntry,
   "question-sequence": questionSequenceEntry,
 };
 
