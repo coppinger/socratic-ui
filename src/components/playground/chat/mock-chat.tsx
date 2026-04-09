@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type {
   Density,
-  PlaygroundMessage,
   PlaygroundScenario,
   SocraticNode,
 } from "@/playground/registry";
@@ -40,6 +39,13 @@ export function MockChat({
   animationKey: string;
   optionIcons: OptionIconSettings;
 }) {
+  // Socratic messages are hoisted out of the transcript — once the fake
+  // "generating" window elapses, the live component replaces the textarea
+  // composer below.
+  const textMessages = scenario.messages.filter(
+    (message) => message.kind === "text",
+  );
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-9 shrink-0 items-center border-b border-border px-4 font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -52,91 +58,47 @@ export function MockChat({
             density === "compact" ? "gap-4 py-6" : "gap-8 py-10",
           )}
         >
-          {scenario.messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              message={message}
-              liveNode={liveNode}
-              motion={motion}
-              animationKey={animationKey}
-              optionIcons={optionIcons}
-            />
+          {textMessages.map((message) => (
+            <Message key={message.id} from={message.role}>
+              <MessageContent>
+                <p className="leading-relaxed">{message.text}</p>
+              </MessageContent>
+            </Message>
           ))}
+          <GeneratingShimmer key={animationKey} />
         </ConversationContent>
       </Conversation>
-      <MockChatInput density={density} />
+      <div
+        className={cn(
+          "mx-auto w-full max-w-2xl px-4",
+          density === "compact" ? "pb-3 pt-1" : "pb-5 pt-2",
+        )}
+      >
+        <ComposerSlot
+          key={animationKey}
+          liveNode={liveNode}
+          motion={motion}
+          optionIcons={optionIcons}
+        />
+        <p className="mt-2 text-center text-[11px] text-muted-foreground">
+          Claude is AI and can make mistakes. Please double-check responses.
+        </p>
+      </div>
     </div>
   );
 }
 
-function ChatMessage({
-  message,
-  liveNode,
-  motion,
-  animationKey,
-  optionIcons,
-}: {
-  message: PlaygroundMessage;
-  liveNode: SocraticNode;
-  motion: SocraticMotion;
-  animationKey: string;
-  optionIcons: OptionIconSettings;
-}) {
-  if (message.kind === "text") {
-    return (
-      <Message from={message.role}>
-        <MessageContent>
-          <p className="leading-relaxed">{message.text}</p>
-        </MessageContent>
-      </Message>
-    );
-  }
-  // Keyed on `animationKey` so any replay trigger remounts the subtree,
-  // restarting the loading shimmer and the entry animation.
-  return (
-    <SocraticChatMessage
-      key={animationKey}
-      liveNode={liveNode}
-      motion={motion}
-      optionIcons={optionIcons}
-    />
-  );
-}
-
-function SocraticChatMessage({
-  liveNode,
-  motion,
-  optionIcons,
-}: {
-  liveNode: SocraticNode;
-  motion: SocraticMotion;
-  optionIcons: OptionIconSettings;
-}) {
-  const [loading, setLoading] = useState(true);
-
+// Parent keys this on `animationKey` so remount naturally resets the timer
+// on replay / scenario change / prop tweak — no reset-in-effect needed.
+function GeneratingShimmer() {
+  const [visible, setVisible] = useState(true);
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), LOADING_MS);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setVisible(false), LOADING_MS);
+    return () => clearTimeout(timer);
   }, []);
-
+  if (!visible) return null;
   return (
-    <Message from="assistant" className="w-full">
-      {loading ? (
-        <LoadingShimmer />
-      ) : (
-        <SocraticRenderer
-          node={liveNode}
-          motion={motion}
-          optionIcons={optionIcons}
-        />
-      )}
-    </Message>
-  );
-}
-
-function LoadingShimmer() {
-  return (
-    <div className="flex items-center gap-2 py-2 text-muted-foreground">
+    <div className="flex items-center gap-2 text-muted-foreground">
       <Spinner className="size-3.5" />
       <span className="animate-pulse font-mono text-[11px] uppercase tracking-wider">
         Generating questions
@@ -145,82 +107,99 @@ function LoadingShimmer() {
   );
 }
 
-// Visual-only — submit is preventDefault'd because the playground is
-// fixture-driven, but the affordances exist so the chat surface reads
-// as a complete chat UI.
-function MockChatInput({ density }: { density: Density }) {
+// Parent keys this on `animationKey` so remount resets the swap timer.
+// w-[95%] mirrors the assistant Message's max-w-[95%] (ai-elements/message.tsx)
+// so the composer-slot contents align with the assistant bubbles above it.
+function ComposerSlot({
+  liveNode,
+  motion,
+  optionIcons,
+}: {
+  liveNode: SocraticNode;
+  motion: SocraticMotion;
+  optionIcons: OptionIconSettings;
+}) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setReady(true), LOADING_MS);
+    return () => clearTimeout(timer);
+  }, []);
   return (
-    <div
-      className={cn(
-        "mx-auto w-full max-w-2xl px-4",
-        density === "compact" ? "pb-3 pt-1" : "pb-5 pt-2",
+    <div className="w-[95%]">
+      {ready ? (
+        <SocraticRenderer
+          node={liveNode}
+          motion={motion}
+          optionIcons={optionIcons}
+        />
+      ) : (
+        <TextareaComposer />
       )}
-    >
-      {/* w-[95%] mirrors the assistant Message's max-w-[95%] (ai-elements/message.tsx)
-          so the chat input card aligns exactly with the socratic card above it. */}
-      <form
-        onSubmit={(event) => event.preventDefault()}
-        className="w-[95%]"
-      >
-        <div className="rounded-2xl border border-border px-3 pb-2 pt-3 shadow-sm">
-          <Textarea
-            rows={1}
-            placeholder="Reply…"
-            aria-label="Message"
-            className="min-h-0 w-full resize-none border-0 bg-transparent px-1 pb-2 pt-0.5 text-sm shadow-none focus-visible:ring-0 dark:bg-transparent"
-          />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Attach"
-                className="text-muted-foreground"
-                disabled
-              >
-                <Plus className="size-4" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Add context"
-                className="bg-accent text-foreground"
-                disabled
-              >
-                <Inbox className="size-4" />
-              </Button>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                aria-label="Model picker"
-                disabled
-              >
-                <span className="text-foreground">Opus 4.6</span>
-                <span className="text-muted-foreground">Extended</span>
-                <ChevronDown className="size-3 text-muted-foreground" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Voice input"
-                className="text-muted-foreground"
-                disabled
-              >
-                <AudioLines className="size-4" />
-              </Button>
-            </div>
+    </div>
+  );
+}
+
+// Visual-only textarea composer shown *before* the socratic component takes
+// over. Submit is preventDefault'd because the playground is fixture-driven,
+// but the affordances exist so the initial surface reads as a complete chat.
+function TextareaComposer() {
+  return (
+    <form onSubmit={(event) => event.preventDefault()}>
+      <div className="rounded-2xl border border-border px-3 pb-2 pt-3 shadow-sm">
+        <Textarea
+          rows={1}
+          placeholder="Reply…"
+          aria-label="Message"
+          className="min-h-0 w-full resize-none border-0 bg-transparent px-1 pb-2 pt-0.5 text-sm shadow-none focus-visible:ring-0 dark:bg-transparent"
+        />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Attach"
+              className="text-muted-foreground"
+              disabled
+            >
+              <Plus className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Add context"
+              className="bg-accent text-foreground"
+              disabled
+            >
+              <Inbox className="size-4" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-label="Model picker"
+              disabled
+            >
+              <span className="text-foreground">Opus 4.6</span>
+              <span className="text-muted-foreground">Extended</span>
+              <ChevronDown className="size-3 text-muted-foreground" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Voice input"
+              className="text-muted-foreground"
+              disabled
+            >
+              <AudioLines className="size-4" />
+            </Button>
           </div>
         </div>
-        <p className="mt-2 text-center text-[11px] text-muted-foreground">
-          Claude is AI and can make mistakes. Please double-check responses.
-        </p>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }
