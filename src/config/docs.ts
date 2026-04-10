@@ -25,6 +25,12 @@ export const docsNav: DocsNavGroup[] = [
         description:
           "Structured input components for AI chat interfaces — low-friction elicitation patterns.",
       },
+      {
+        title: "Installation",
+        href: "/docs/installation",
+        description:
+          "Add the shadcn registry, install components, and wire them up to the AI SDK.",
+      },
     ],
   },
   {
