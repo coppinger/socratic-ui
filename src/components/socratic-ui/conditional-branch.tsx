@@ -96,12 +96,6 @@ export function ConditionalBranch({
     },
   });
 
-  const followUpSelectedTitle =
-    selectedOption?.followUp?.kind === "single-select" &&
-    value.followUpValue !== null
-      ? value.followUpValue
-      : null;
-
   const canSubmit = React.useMemo(() => {
     if (!selectedOption) return false;
     if (!selectedOption.followUp) return true;
@@ -152,7 +146,6 @@ export function ConditionalBranch({
             followUp={selectedOption.followUp}
             value={value.followUpValue}
             onChange={setFollowUpValue}
-            selectedTitle={followUpSelectedTitle}
           />
         </div>
       ) : null}
@@ -164,12 +157,10 @@ function FollowUpPanel({
   followUp,
   value,
   onChange,
-  selectedTitle,
 }: {
   followUp: ConditionalBranchFollowUp;
   value: string | null;
   onChange: (next: string | null) => void;
-  selectedTitle: string | null;
 }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 px-4 py-4">
@@ -187,10 +178,8 @@ function FollowUpPanel({
       ) : (
         <FollowUpOptions
           options={followUp.options}
-          selectedTitle={selectedTitle}
-          onSelect={(title) =>
-            onChange(selectedTitle === title ? null : title)
-          }
+          selectedTitle={value}
+          onSelect={(title) => onChange(value === title ? null : title)}
         />
       )}
     </div>

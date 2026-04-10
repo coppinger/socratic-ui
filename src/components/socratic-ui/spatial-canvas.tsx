@@ -83,9 +83,17 @@ export function SpatialCanvas({
 
   const canvasRef = React.useRef<HTMLDivElement>(null);
 
-  const placed = Object.keys(value);
-  const placedSet = new Set(placed);
-  const unplaced = items.filter((item) => !placedSet.has(item.id));
+  // Memoised so the unplaced array's identity is stable across renders
+  // that don't actually move items — that in turn keeps `useRovingFocus`'s
+  // count steady and prevents `focusItem` from re-identifying every render.
+  const { placed, unplaced } = React.useMemo(() => {
+    const placedKeys = Object.keys(value);
+    const placedSet = new Set(placedKeys);
+    return {
+      placed: placedKeys,
+      unplaced: items.filter((item) => !placedSet.has(item.id)),
+    };
+  }, [value, items]);
 
   const setPosition = (id: string, position: SpatialCanvasPosition) => {
     onChange({ ...value, [id]: position });
@@ -108,7 +116,6 @@ export function SpatialCanvas({
     setActiveId(null);
   };
 
-  // ─── Keyboard: roving focus across unplaced items ────────────────────
   const itemRoving = useRovingFocus({
     count: unplaced.length,
     orientation: "vertical",
@@ -123,10 +130,23 @@ export function SpatialCanvas({
     },
   });
 
+  // Stable callback so `useSequenceQuestion`'s focus effect doesn't refire
+  // every time placement shifts `unplaced.length` and steals focus back to
+  // the top of the list mid-interaction.
+  const focusTargetsRef = React.useRef({
+    itemRoving,
+    hasUnplaced: unplaced.length > 0,
+  });
+  React.useLayoutEffect(() => {
+    focusTargetsRef.current = {
+      itemRoving,
+      hasUnplaced: unplaced.length > 0,
+    };
+  });
   const focusFirst = React.useCallback(() => {
-    if (unplaced.length > 0) itemRoving.focusItem(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unplaced.length]);
+    const { hasUnplaced, itemRoving: items } = focusTargetsRef.current;
+    if (hasUnplaced) items.focusItem(0);
+  }, []);
 
   const sequence = useSequenceQuestion({
     canSubmit: placed.length > 0,
@@ -134,7 +154,6 @@ export function SpatialCanvas({
     hints: SPATIAL_CANVAS_HINTS,
   });
 
-  // ─── Canvas keyboard navigation ──────────────────────────────────────
   // Allowing the canvas to be Tab-focusable gives keyboard users a
   // steerable cursor — arrow keys nudge 5% per press; Enter drops the
   // currently picked-up item at the cursor.

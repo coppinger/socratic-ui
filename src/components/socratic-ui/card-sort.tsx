@@ -68,9 +68,6 @@ export function CardSort({
     () => buckets[0]?.id ?? null,
   );
 
-  // Derive the unplaced list from the value map — the value is the
-  // source of truth for which items belong to which bucket, so rebuilding
-  // this on every render keeps rearrangements cheap and side-effect free.
   const placedTitles = React.useMemo(() => {
     const set = new Set<string>();
     for (const titles of Object.values(value)) {
@@ -105,7 +102,6 @@ export function CardSort({
 
   const totalPlaced = placedTitles.size;
 
-  // ─── Keyboard roving focus ────────────────────────────────────────────
   // Two independent lists: buckets (horizontal) and unplaced items (vertical).
   const bucketRoving = useRovingFocus({
     count: buckets.length,
@@ -130,18 +126,34 @@ export function CardSort({
     },
   });
 
+  // Stable callback so `useSequenceQuestion`'s focus effect (keyed on
+  // `[step, focusFirst]`) doesn't refire every time the user places an
+  // item and shifts `unplaced.length`. Reading the latest roving hooks
+  // through a live ref keeps the body up to date without re-identifying.
+  const focusTargetsRef = React.useRef({
+    bucketRoving,
+    itemRoving,
+    hasUnplaced: unplaced.length > 0,
+  });
+  React.useLayoutEffect(() => {
+    focusTargetsRef.current = {
+      bucketRoving,
+      itemRoving,
+      hasUnplaced: unplaced.length > 0,
+    };
+  });
   const focusFirst = React.useCallback(() => {
-    // Items are the primary action — start there when the active
-    // sequence step swaps to this component.
-    if (unplaced.length > 0) {
-      itemRoving.focusItem(0);
+    // Items are the primary action — start there when the active sequence
+    // step swaps to this component, falling back to buckets when nothing
+    // is left to place.
+    const { hasUnplaced, itemRoving: items, bucketRoving: bks } =
+      focusTargetsRef.current;
+    if (hasUnplaced) {
+      items.focusItem(0);
     } else {
-      bucketRoving.focusItem(0);
+      bks.focusItem(0);
     }
-    // The roving functions are stable refs; omitting from deps keeps
-    // re-focus from firing on every keystroke.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unplaced.length]);
+  }, []);
 
   const sequence = useSequenceQuestion({
     canSubmit: totalPlaced > 0,
@@ -235,38 +247,36 @@ export function CardSort({
             const tone = bucket.tone ?? "neutral";
             return (
               <div key={bucket.id} className="flex flex-col gap-1.5">
-                <div className="flex flex-col gap-1.5">
-                  {titles.map((title) => {
-                    const item = itemByTitle.get(title);
-                    if (!item) return null;
-                    return (
-                      <MotionItem motion={motion} key={title}>
-                        <button
-                          type="button"
-                          onClick={() => removeFromBucket(bucket.id, title)}
-                          aria-label={`Remove ${title} from ${bucket.title}`}
-                          className={cn(
-                            "group flex w-full items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left transition-colors",
-                            "outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50",
-                            placedItemToneClass(tone),
-                          )}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="text-[13px] font-semibold leading-tight">
-                              {item.title}
-                            </div>
-                            {item.subtitle ? (
-                              <div className="mt-0.5 text-[11px] leading-snug opacity-80">
-                                {item.subtitle}
-                              </div>
-                            ) : null}
+                {titles.map((title) => {
+                  const item = itemByTitle.get(title);
+                  if (!item) return null;
+                  return (
+                    <MotionItem motion={motion} key={title}>
+                      <button
+                        type="button"
+                        onClick={() => removeFromBucket(bucket.id, title)}
+                        aria-label={`Remove ${title} from ${bucket.title}`}
+                        className={cn(
+                          "group flex w-full items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left transition-colors",
+                          "outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50",
+                          placedItemToneClass(tone),
+                        )}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[13px] font-semibold leading-tight">
+                            {item.title}
                           </div>
-                          <X className="size-3.5 shrink-0 opacity-60 group-hover:opacity-100" />
-                        </button>
-                      </MotionItem>
-                    );
-                  })}
-                </div>
+                          {item.subtitle ? (
+                            <div className="mt-0.5 text-[11px] leading-snug opacity-80">
+                              {item.subtitle}
+                            </div>
+                          ) : null}
+                        </div>
+                        <X className="size-3.5 shrink-0 opacity-60 group-hover:opacity-100" />
+                      </button>
+                    </MotionItem>
+                  );
+                })}
               </div>
             );
           })}

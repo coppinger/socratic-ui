@@ -68,26 +68,25 @@ export function UserStoryBuilder({
   const stageRef = React.useRef<HTMLDivElement>(null);
 
   const updateStory = (index: number, patch: Partial<UserStory>) => {
-    const base: UserStory[] =
-      value.length === 0 ? [{ persona: "", action: "", outcome: "" }] : [
-        ...value,
-      ];
-    base[index] = { ...base[index], ...patch };
-    onChange(base);
+    // Spreading `storiesForDisplay` promotes the synthetic blank to a
+    // real story on first edit.
+    const next = [...storiesForDisplay];
+    next[index] = { ...next[index], ...patch };
+    onChange(next);
   };
 
   const removeStory = (index: number) => {
-    if (value.length === 0) return;
+    // Only reachable when `storiesForDisplay.length > 1`, which requires
+    // `value.length >= 2`.
     onChange(value.filter((_, i) => i !== index));
   };
 
   const addStory = () => {
     if (storiesForDisplay.length >= maxStories) return;
-    const base: UserStory[] =
-      value.length === 0 ? [{ persona: "", action: "", outcome: "" }] : [
-        ...value,
-      ];
-    onChange([...base, { persona: "", action: "", outcome: "" }]);
+    onChange([
+      ...storiesForDisplay,
+      { persona: "", action: "", outcome: "" },
+    ]);
   };
 
   const completedCount = storiesForDisplay.reduce(

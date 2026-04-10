@@ -125,9 +125,15 @@ export function MetricTarget({
     value.target !== null &&
     value.timeframe !== null;
 
+  // Live ref keeps the stable focusFirst pointing at the latest roving
+  // hook even when the metric set changes (edge-case swaps remount the
+  // hook with a new `focusItem` identity).
+  const metricRovingRef = React.useRef(metricRoving);
+  React.useLayoutEffect(() => {
+    metricRovingRef.current = metricRoving;
+  });
   const focusFirst = React.useCallback(() => {
-    metricRoving.focusItem(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    metricRovingRef.current.focusItem(0);
   }, []);
 
   const sequence = useSequenceQuestion({
@@ -157,8 +163,6 @@ export function MetricTarget({
       footer={sequence ? <QuestionFooter /> : null}
     >
       <div ref={stageRef} className="flex flex-col gap-5 px-7 pb-2">
-        {/* Metric list — roving vertical list keeps keyboard nav consistent
-            with the other single-pick components. */}
         <div className="flex flex-col gap-2">
           <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
             Metric
@@ -234,9 +238,8 @@ export function MetricTarget({
           </MotionStage>
         </div>
 
-        {/* Target numeric input with a static unit suffix driven by the
-            currently selected metric. Grey until a metric is chosen so
-            the flow reads left-to-right. */}
+        {/* Target stays muted until a metric is chosen so the eye reads
+            metric → target → timeframe left-to-right. */}
         <div className="flex flex-col gap-2">
           <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
             Target
@@ -267,7 +270,6 @@ export function MetricTarget({
           </div>
         </div>
 
-        {/* Timeframe chips. Horizontal roving so arrow keys feel natural. */}
         <div className="flex flex-col gap-2">
           <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
             Timeframe

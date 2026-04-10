@@ -68,9 +68,9 @@ export function QuickEstimate({
   );
 
   const focusFirst = React.useCallback(() => {
-    // Select the first option of the first dimension. Each
-    // `DimensionSection` tags its root with `data-dimension` so we can
-    // scope the query without needing a ref to every section.
+    // Each `DimensionSection` tags itself with `data-dimension-index` so
+    // we can target the first dimension's first option without threading
+    // a ref through every section.
     const first = stageRef.current?.querySelector<HTMLElement>(
       '[data-dimension-index="0"] [data-roving-index="0"]',
     );

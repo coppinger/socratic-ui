@@ -68,24 +68,22 @@ export function GoalsNonGoals({
   const stageRef = React.useRef<HTMLDivElement>(null);
 
   const updateRow = (index: number, patch: Partial<GoalsNonGoalsPair>) => {
-    // Promote the virtual-empty row to a real row on first edit.
-    const base: GoalsNonGoalsPair[] =
-      value.length === 0 ? [{ goal: "", nonGoal: "" }] : [...value];
-    base[index] = { ...base[index], ...patch };
-    onChange(base);
+    // Spreading `rowsForDisplay` promotes the synthetic blank row to a
+    // real row on first edit, in one branch.
+    const next = [...rowsForDisplay];
+    next[index] = { ...next[index], ...patch };
+    onChange(next);
   };
 
   const removeRow = (index: number) => {
-    if (value.length === 0) return;
-    const next = value.filter((_, i) => i !== index);
-    onChange(next);
+    // Only reachable when `rowsForDisplay.length > 1`, which requires
+    // `value.length >= 2` — no length-zero guard needed.
+    onChange(value.filter((_, i) => i !== index));
   };
 
   const addRow = () => {
     if (rowsForDisplay.length >= maxPairs) return;
-    const base: GoalsNonGoalsPair[] =
-      value.length === 0 ? [{ goal: "", nonGoal: "" }] : [...value];
-    onChange([...base, { goal: "", nonGoal: "" }]);
+    onChange([...rowsForDisplay, { goal: "", nonGoal: "" }]);
   };
 
   const completedCount = rowsForDisplay.reduce(
