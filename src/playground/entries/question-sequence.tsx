@@ -4,12 +4,25 @@ import * as React from "react";
 
 import type { SocraticMotion } from "@/components/socratic-ui/motion";
 import { AgreementSpectrum } from "@/components/socratic-ui/agreement-spectrum";
+import { CardSort } from "@/components/socratic-ui/card-sort";
+import {
+  ConditionalBranch,
+  type ConditionalBranchValue,
+} from "@/components/socratic-ui/conditional-branch";
 import { FillBlank } from "@/components/socratic-ui/fill-blank";
+import { GoalsNonGoals } from "@/components/socratic-ui/goals-non-goals";
+import type { GoalsNonGoalsPair } from "@/components/socratic-ui/goals-non-goals";
+import { Matrix } from "@/components/socratic-ui/matrix";
+import {
+  MetricTarget,
+  type MetricTargetValue,
+} from "@/components/socratic-ui/metric-target";
 import { MultiSelect } from "@/components/socratic-ui/multi-select";
 import { NegationSelect } from "@/components/socratic-ui/negation-select";
 import { OpenQuestions } from "@/components/socratic-ui/open-questions";
 import { generatedOptionIcon } from "@/components/socratic-ui/option-icons";
 import { PriorityRank } from "@/components/socratic-ui/priority-rank";
+import { QuickEstimate } from "@/components/socratic-ui/quick-estimate";
 import {
   SequenceShell,
   useQuestionSequence,
@@ -22,9 +35,17 @@ import type {
 } from "@/components/socratic-ui/shared";
 import { SingleSelect } from "@/components/socratic-ui/single-select";
 import {
+  SpatialCanvas,
+  type SpatialCanvasPosition,
+} from "@/components/socratic-ui/spatial-canvas";
+import {
   Spectrum,
   spectrumInitialValue,
 } from "@/components/socratic-ui/spectrum";
+import {
+  UserStoryBuilder,
+  type UserStory,
+} from "@/components/socratic-ui/user-story-builder";
 
 import type { PlaygroundEntry, RendererProps } from "../registry";
 
@@ -133,6 +154,93 @@ function renderItem({
           motion={motion}
         />
       );
+    case "card-sort":
+      return (
+        <CardSort
+          {...node.props}
+          value={(value as Record<string, string[]> | undefined) ?? {}}
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "spatial-canvas":
+      return (
+        <SpatialCanvas
+          {...node.props}
+          value={
+            (value as Record<string, SpatialCanvasPosition> | undefined) ?? {}
+          }
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "quick-estimate":
+      return (
+        <QuickEstimate
+          {...node.props}
+          value={
+            (value as Record<string, string | null> | undefined) ?? {}
+          }
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "conditional-branch":
+      return (
+        <ConditionalBranch
+          {...node.props}
+          value={
+            (value as ConditionalBranchValue | undefined) ?? {
+              selectedId: null,
+              followUpValue: null,
+            }
+          }
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "matrix":
+      return (
+        <Matrix
+          {...node.props}
+          value={(value as Record<string, number> | undefined) ?? {}}
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "goals-non-goals":
+      return (
+        <GoalsNonGoals
+          {...node.props}
+          value={(value as GoalsNonGoalsPair[] | undefined) ?? []}
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "user-story-builder":
+      return (
+        <UserStoryBuilder
+          {...node.props}
+          value={(value as UserStory[] | undefined) ?? []}
+          onChange={onChange}
+          motion={motion}
+        />
+      );
+    case "metric-target":
+      return (
+        <MetricTarget
+          {...node.props}
+          value={
+            (value as MetricTargetValue | undefined) ?? {
+              metricId: null,
+              target: null,
+              timeframe: null,
+            }
+          }
+          onChange={onChange}
+          motion={motion}
+        />
+      );
   }
 }
 
@@ -194,6 +302,16 @@ function withGeneratedIcons(
     case "open-questions":
     case "spectrum":
     case "agreement-spectrum":
+    case "card-sort":
+    case "spatial-canvas":
+    case "quick-estimate":
+    case "conditional-branch":
+    case "matrix":
+    case "goals-non-goals":
+    case "user-story-builder":
+    case "metric-target":
+      // None of these carry the "options with leading icon" shape the
+      // playground toggle targets — generated icons are a no-op here.
       return node;
   }
 }

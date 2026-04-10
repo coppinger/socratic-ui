@@ -86,3 +86,59 @@ export const AGREEMENT_SPECTRUM_HINTS: KeyboardHint[] = [
   { keys: "⌘ Enter", label: "to submit" },
   { keys: "Esc", label: "to skip" },
 ];
+
+export const CARD_SORT_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "between buckets & items" },
+  { keys: "Enter", label: "to place/remove" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
+
+export const SPATIAL_CANVAS_HINTS: KeyboardHint[] = [
+  { keys: "↑↓", label: "to pick an item" },
+  { keys: "Enter", label: "to place at centre" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
+
+export const QUICK_ESTIMATE_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "between dimensions" },
+  { keys: "↑↓", label: "within a list" },
+  { keys: "Enter", label: "to select" },
+  { keys: "⌘ Enter", label: "to submit" },
+];
+
+export const CONDITIONAL_BRANCH_HINTS: KeyboardHint[] = [
+  { keys: "↑↓", label: "to pick a branch" },
+  { keys: "Enter", label: "to open follow-up" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
+
+export const MATRIX_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "between rows" },
+  { keys: "← →", label: "to rate level" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
+
+export const GOALS_NON_GOALS_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "between fields" },
+  { keys: "Enter", label: "to add a pair" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
+
+export const USER_STORY_BUILDER_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "between slots" },
+  { keys: "Enter", label: "to add a story" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];
+
+export const METRIC_TARGET_HINTS: KeyboardHint[] = [
+  { keys: "Tab", label: "between fields" },
+  { keys: "← →", label: "within chips" },
+  { keys: "⌘ Enter", label: "to submit" },
+  { keys: "Esc", label: "to skip" },
+];

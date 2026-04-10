@@ -79,6 +79,54 @@ export const docsNav: DocsNavGroup[] = [
           "Likert-rate a batch of statements, optionally compared to how others answered.",
       },
       {
+        title: "Card Sort",
+        href: "/docs/components/card-sort",
+        description:
+          "Multi-bucket triage. MoSCoW the features into must-have, nice-to-have, and out-of-scope.",
+      },
+      {
+        title: "Spatial Canvas",
+        href: "/docs/components/spatial-canvas",
+        description:
+          "Place items on a two-axis canvas — effort × impact, cost × value, the canonical 2×2.",
+      },
+      {
+        title: "Quick Estimate",
+        href: "/docs/components/quick-estimate",
+        description:
+          "Stack two or three related single-pick lists — budget + timeline is the canonical case.",
+      },
+      {
+        title: "Conditional Branch",
+        href: "/docs/components/conditional-branch",
+        description:
+          "Binary or four-way branch with a tailored follow-up per path.",
+      },
+      {
+        title: "Matrix",
+        href: "/docs/components/matrix",
+        description:
+          "Row × level grid assessment for capability audits, feature maturity, or risk exposure.",
+      },
+      {
+        title: "Goals / Non-Goals",
+        href: "/docs/components/goals-non-goals",
+        description:
+          "Paired list builder. For every goal, name the non-goal that frames it.",
+      },
+      {
+        title: "User Story Builder",
+        href: "/docs/components/user-story-builder",
+        description:
+          "Repeatable \"As a ___, I want ___, so that ___\" composer with chip suggestions per slot.",
+      },
+      {
+        title: "Metric Target",
+        href: "/docs/components/metric-target",
+        description:
+          "Pick a success metric, name a numeric target, pick a timeframe.",
+      },
+      {
         title: "Question Sequence",
         href: "/docs/components/question-sequence",
         description:

@@ -5,25 +5,41 @@ import type { SocraticMotion } from "@/components/socratic-ui/motion";
 import type { OptionIconSettings } from "@/components/socratic-ui/shared";
 import type {
   agreementSpectrumQuestionSchema,
+  cardSortQuestionSchema,
+  conditionalBranchQuestionSchema,
   fillBlankQuestionSchema,
+  goalsNonGoalsQuestionSchema,
+  matrixQuestionSchema,
+  metricTargetQuestionSchema,
   multiSelectQuestionSchema,
   negationSelectQuestionSchema,
   openQuestionsQuestionSchema,
   priorityRankQuestionSchema,
   questionSequenceQuestionSchema,
+  quickEstimateQuestionSchema,
   singleSelectQuestionSchema,
+  spatialCanvasQuestionSchema,
   spectrumQuestionSchema,
+  userStoryBuilderQuestionSchema,
 } from "@/components/socratic-ui/schemas";
 
 import { agreementSpectrumEntry } from "./entries/agreement-spectrum";
+import { cardSortEntry } from "./entries/card-sort";
+import { conditionalBranchEntry } from "./entries/conditional-branch";
 import { fillBlankEntry } from "./entries/fill-blank";
+import { goalsNonGoalsEntry } from "./entries/goals-non-goals";
+import { matrixEntry } from "./entries/matrix";
+import { metricTargetEntry } from "./entries/metric-target";
 import { multiSelectEntry } from "./entries/multi-select";
 import { negationSelectEntry } from "./entries/negation-select";
 import { openQuestionsEntry } from "./entries/open-questions";
 import { priorityRankEntry } from "./entries/priority-rank";
 import { questionSequenceEntry } from "./entries/question-sequence";
+import { quickEstimateEntry } from "./entries/quick-estimate";
 import { singleSelectEntry } from "./entries/single-select";
+import { spatialCanvasEntry } from "./entries/spatial-canvas";
 import { spectrumEntry } from "./entries/spectrum";
+import { userStoryBuilderEntry } from "./entries/user-story-builder";
 
 export type SocraticNode =
   | { kind: "single-select"; props: z.infer<typeof singleSelectQuestionSchema> }
@@ -42,6 +58,32 @@ export type SocraticNode =
   | {
       kind: "agreement-spectrum";
       props: z.infer<typeof agreementSpectrumQuestionSchema>;
+    }
+  | { kind: "card-sort"; props: z.infer<typeof cardSortQuestionSchema> }
+  | {
+      kind: "spatial-canvas";
+      props: z.infer<typeof spatialCanvasQuestionSchema>;
+    }
+  | {
+      kind: "quick-estimate";
+      props: z.infer<typeof quickEstimateQuestionSchema>;
+    }
+  | {
+      kind: "conditional-branch";
+      props: z.infer<typeof conditionalBranchQuestionSchema>;
+    }
+  | { kind: "matrix"; props: z.infer<typeof matrixQuestionSchema> }
+  | {
+      kind: "goals-non-goals";
+      props: z.infer<typeof goalsNonGoalsQuestionSchema>;
+    }
+  | {
+      kind: "user-story-builder";
+      props: z.infer<typeof userStoryBuilderQuestionSchema>;
+    }
+  | {
+      kind: "metric-target";
+      props: z.infer<typeof metricTargetQuestionSchema>;
     }
   | {
       kind: "question-sequence";
@@ -154,9 +196,17 @@ export type AnyPlaygroundEntry =
   | PlaygroundEntry<"open-questions">
   | PlaygroundEntry<"spectrum">
   | PlaygroundEntry<"agreement-spectrum">
+  | PlaygroundEntry<"card-sort">
+  | PlaygroundEntry<"spatial-canvas">
+  | PlaygroundEntry<"quick-estimate">
+  | PlaygroundEntry<"conditional-branch">
+  | PlaygroundEntry<"matrix">
+  | PlaygroundEntry<"goals-non-goals">
+  | PlaygroundEntry<"user-story-builder">
+  | PlaygroundEntry<"metric-target">
   | PlaygroundEntry<"question-sequence">;
 
-// `Partial` so adding the remaining 12 components later requires only
+// `Partial` so adding the remaining components later requires only
 // defining a new entry and dropping it in.
 export const playgroundRegistry: Partial<{
   [K in SocraticKind]: PlaygroundEntry<K>;
@@ -169,6 +219,14 @@ export const playgroundRegistry: Partial<{
   "open-questions": openQuestionsEntry,
   spectrum: spectrumEntry,
   "agreement-spectrum": agreementSpectrumEntry,
+  "card-sort": cardSortEntry,
+  "spatial-canvas": spatialCanvasEntry,
+  "quick-estimate": quickEstimateEntry,
+  "conditional-branch": conditionalBranchEntry,
+  matrix: matrixEntry,
+  "goals-non-goals": goalsNonGoalsEntry,
+  "user-story-builder": userStoryBuilderEntry,
+  "metric-target": metricTargetEntry,
   "question-sequence": questionSequenceEntry,
 };
 
