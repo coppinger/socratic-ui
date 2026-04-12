@@ -12,6 +12,8 @@ import { z } from "zod";
 const optionSchema = z.object({
   title: z.string(),
   subtitle: z.string().optional(),
+  /** Short reason the AI recommends this option, e.g. "Best fit for solo builders". */
+  recommended: z.string().optional(),
 });
 
 // ─── SingleSelect ────────────────────────────────────────────────────────────

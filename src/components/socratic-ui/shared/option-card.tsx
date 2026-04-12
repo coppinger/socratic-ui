@@ -7,6 +7,7 @@ import type { OptionIconAlignment, OptionIconLayout } from "./icon-settings";
 export function OptionCard({
   title,
   subtitle,
+  recommended,
   selected,
   onSelect,
   disabled,
@@ -21,6 +22,8 @@ export function OptionCard({
 }: {
   title: string;
   subtitle?: string;
+  /** AI-supplied recommendation reason. Renders a green shimmer line beneath the subtitle. */
+  recommended?: string;
   selected: boolean;
   onSelect: () => void;
   disabled?: boolean;
@@ -147,6 +150,11 @@ export function OptionCard({
         {subtitle ? (
           <div className="mt-0.5 text-xs leading-snug text-muted-foreground">
             {subtitle}
+          </div>
+        ) : null}
+        {recommended ? (
+          <div className="text-shimmer-success mt-1 text-xs leading-snug">
+            Recommended — {recommended}
           </div>
         ) : null}
       </div>

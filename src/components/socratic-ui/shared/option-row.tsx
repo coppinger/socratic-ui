@@ -15,6 +15,8 @@ export type OptionRowLeading =
 export interface OptionRowProps {
   title: string;
   subtitle?: string;
+  /** AI-supplied recommendation reason. Renders a green shimmer line beneath the subtitle. */
+  recommended?: string;
   selected: boolean;
   onSelect: () => void;
   leading?: OptionRowLeading;
@@ -38,6 +40,7 @@ export interface OptionRowProps {
 export function OptionRow({
   title,
   subtitle,
+  recommended,
   selected,
   onSelect,
   leading = { kind: "none" },
@@ -60,7 +63,8 @@ export function OptionRow({
       aria-pressed={selected}
       {...restRowProps}
       className={cn(
-        "group relative flex w-full items-center gap-4 px-5 py-4 text-left transition-colors",
+        "group relative flex w-full gap-4 px-5 py-4 text-left transition-colors",
+        recommended ? "items-start" : "items-center",
         "outline-hidden focus-visible:bg-muted/60",
         focused && "bg-muted/60",
         selected && "bg-[var(--accent-soft)]",
@@ -85,6 +89,11 @@ export function OptionRow({
         {subtitle ? (
           <div className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
             {subtitle}
+          </div>
+        ) : null}
+        {recommended ? (
+          <div className="text-shimmer-success mt-1 text-[13px] leading-snug">
+            Recommended — {recommended}
           </div>
         ) : null}
       </div>

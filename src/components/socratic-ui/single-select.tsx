@@ -32,6 +32,8 @@ export type SingleSelectOption = {
   title: string;
   subtitle?: string;
   icon?: React.ReactNode;
+  /** Short reason the AI recommends this option. Renders a green shimmer line beneath the subtitle. */
+  recommended?: string;
 };
 
 export interface SingleSelectProps {
@@ -241,6 +243,7 @@ function SingleSelectRows({
               <OptionRow
                 title={option.title}
                 subtitle={option.subtitle}
+                recommended={option.recommended}
                 selected={isSelected}
                 focused={activeIndex === index}
                 disabled={isMultiMode && !canAddMore && !isSelected}
@@ -394,6 +397,7 @@ function SingleSelectTiles({
                 <OptionCard
                   title={option.title}
                   subtitle={option.subtitle}
+                  recommended={option.recommended}
                   icon={option.icon}
                   iconLayout={iconLayout}
                   iconAlignment={iconAlignment}

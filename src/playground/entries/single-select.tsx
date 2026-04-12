@@ -236,5 +236,24 @@ export const singleSelectEntry: PlaygroundEntry<"single-select"> = {
         props: { ...node.props, allowMultiple: true, max: 3 },
       }),
     },
+    {
+      id: "recommended",
+      label: "Recommended option",
+      apply: (node) => ({
+        ...node,
+        props: {
+          ...node.props,
+          options: node.props.options.map((opt, i) =>
+            i === 1
+              ? {
+                  ...opt,
+                  recommended:
+                    "Best fit based on your schedule and budget range",
+                }
+              : opt,
+          ),
+        },
+      }),
+    },
   ],
 };
