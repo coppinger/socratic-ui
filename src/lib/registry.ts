@@ -16,6 +16,7 @@
 const sharedFiles = [
   "socratic-ui/motion.ts",
   "socratic-ui/schemas.ts",
+  "socratic-ui/prompts.ts",
   "socratic-ui/shared.tsx",
   "socratic-ui/shared/icon-settings.ts",
   "socratic-ui/shared/section-label.tsx",
