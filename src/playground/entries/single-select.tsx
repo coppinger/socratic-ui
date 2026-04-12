@@ -21,7 +21,6 @@ function SingleSelectRenderer({
 }: RendererProps<"single-select">) {
   const [value, setValue] = useState<string | null>(null);
   const [freeformValue, setFreeformValue] = useState("");
-  const showFreeform = node.props.freeformPlaceholder !== undefined;
   const options = useGeneratedOptionIcons(node.props.options, optionIcons?.show);
 
   return (
@@ -32,8 +31,8 @@ function SingleSelectRenderer({
       value={value}
       onChange={setValue}
       freeformPlaceholder={node.props.freeformPlaceholder}
-      freeformValue={showFreeform ? freeformValue : undefined}
-      onFreeformChange={showFreeform ? setFreeformValue : undefined}
+      freeformValue={freeformValue}
+      onFreeformChange={setFreeformValue}
       motion={motion}
       iconLayout={optionIcons?.layout}
       iconAlignment={optionIcons?.alignment}
@@ -183,7 +182,10 @@ export const singleSelectEntry: PlaygroundEntry<"single-select"> = {
       label: "No freeform",
       apply: (node) => ({
         ...node,
-        props: { ...node.props, freeformPlaceholder: undefined },
+        props: {
+          ...node.props,
+          freeformPlaceholder: false as unknown as string,
+        },
       }),
     },
   ],

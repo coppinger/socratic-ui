@@ -41,7 +41,8 @@ export interface SingleSelectProps {
   onChange: (value: string | null) => void;
   /** Optional question number shown in the header (e.g. "01"). */
   number?: string;
-  freeformPlaceholder?: string;
+  /** Placeholder for the freeform input. Defaults to `"Any extra context…"`. Pass `false` to hide. */
+  freeformPlaceholder?: string | false;
   freeformValue?: string;
   onFreeformChange?: (value: string) => void;
   motion?: SocraticMotion;
@@ -74,8 +75,14 @@ function SingleSelectRows({
   onFreeformChange,
   motion,
 }: SingleSelectProps) {
-  const showFreeform =
-    freeformPlaceholder !== undefined && onFreeformChange !== undefined;
+  const showFreeform = freeformPlaceholder !== false;
+  const resolvedPlaceholder =
+    typeof freeformPlaceholder === "string"
+      ? freeformPlaceholder
+      : "Any extra context\u2026";
+  const [internalFreeform, setInternalFreeform] = React.useState("");
+  const freeformVal = freeformValue ?? internalFreeform;
+  const freeformHandler = onFreeformChange ?? setInternalFreeform;
   const rowCount = options.length + (showFreeform ? 1 : 0);
 
   const toggle = (index: number) => {
@@ -130,9 +137,9 @@ function SingleSelectRows({
         {showFreeform ? (
           <MotionItem motion={motion}>
             <FreeformRow
-              placeholder={freeformPlaceholder!}
-              value={freeformValue ?? ""}
-              onChange={onFreeformChange!}
+              placeholder={resolvedPlaceholder}
+              value={freeformVal}
+              onChange={freeformHandler}
               focused={activeIndex === options.length}
               rowProps={getItemProps(options.length)}
             />
@@ -215,8 +222,14 @@ function SingleSelectTiles({
   iconLayout = "vertical",
   iconAlignment = "left",
 }: SingleSelectProps) {
-  const showFreeform =
-    freeformPlaceholder !== undefined && onFreeformChange !== undefined;
+  const showFreeform = freeformPlaceholder !== false;
+  const resolvedPlaceholder =
+    typeof freeformPlaceholder === "string"
+      ? freeformPlaceholder
+      : "Any extra context\u2026";
+  const [internalFreeform, setInternalFreeform] = React.useState("");
+  const freeformVal = freeformValue ?? internalFreeform;
+  const freeformHandler = onFreeformChange ?? setInternalFreeform;
 
   return (
     <MotionCard motion={motion} className="gap-4 px-7 py-6">
@@ -241,9 +254,9 @@ function SingleSelectTiles({
         </MotionStage>
         {showFreeform ? (
           <textarea
-            placeholder={freeformPlaceholder}
-            value={freeformValue ?? ""}
-            onChange={(event) => onFreeformChange(event.target.value)}
+            placeholder={resolvedPlaceholder}
+            value={freeformVal}
+            onChange={(event) => freeformHandler(event.target.value)}
             rows={2}
             className="mt-3 w-full resize-y rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground outline-hidden placeholder:text-muted-foreground focus:border-primary"
           />
