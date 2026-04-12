@@ -14,9 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Socratic UI",
+  metadataBase: new URL("https://socraticui.com"),
+  title: {
+    default: "Socratic UI",
+    template: "%s — Socratic UI",
+  },
   description:
     "Structured input components for AI chat interfaces — low-friction elicitation patterns built on shadcn/ui.",
+  openGraph: {
+    siteName: "Socratic UI",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function RootLayout({

@@ -11,9 +11,7 @@ import { SingleSelect } from "@/components/socratic-ui/single-select";
 export function QuestionSequenceDemo() {
   const seq = useQuestionSequence({
     ids: ["vibe", "tools", "priorities"],
-    onComplete: (answers) => {
-      console.log("Sequence complete", answers);
-    },
+    onComplete: () => {},
   });
 
   return (

@@ -3,9 +3,12 @@ import path from "node:path";
 
 import { ComponentPage } from "@/components/docs/component-page";
 import type { PropDef } from "@/components/docs/props-table";
+import { componentMetadata } from "@/lib/component-metadata";
 import { highlight } from "@/lib/highlight";
 
 import { SpatialCanvasDemo } from "./demo";
+
+export const metadata = componentMetadata("spatial-canvas");
 
 const demoSource = fs.readFileSync(
   path.join(

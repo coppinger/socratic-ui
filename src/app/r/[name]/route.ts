@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { registry, registryNames } from "@/lib/registry";
+import { registry, registryNames, registryTitle } from "@/lib/registry";
 
 const componentsDir = join(process.cwd(), "src/components");
 
@@ -22,24 +22,29 @@ export async function GET(
     );
   }
 
-  const files = await Promise.all(
-    component.files.map(async (filePath) => {
-      const content = await readFile(join(componentsDir, filePath), "utf-8");
-      return {
-        type: "registry:component" as const,
-        path: filePath,
-        content,
-      };
-    }),
-  );
+  let files: { type: "registry:component"; path: string; content: string }[];
+  try {
+    files = await Promise.all(
+      component.files.map(async (filePath) => {
+        const content = await readFile(join(componentsDir, filePath), "utf-8");
+        return {
+          type: "registry:component" as const,
+          path: filePath,
+          content,
+        };
+      }),
+    );
+  } catch {
+    return Response.json(
+      { error: `Failed to read source files for component: ${slug}` },
+      { status: 500 },
+    );
+  }
 
   return Response.json({
     name: component.name,
     type: "registry:ui",
-    title: component.name
-      .split("-")
-      .map((w) => w[0].toUpperCase() + w.slice(1))
-      .join(" "),
+    title: registryTitle(component.name),
     description: component.description,
     dependencies: component.dependencies,
     registryDependencies: component.registryDependencies,

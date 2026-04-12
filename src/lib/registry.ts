@@ -124,3 +124,29 @@ export const registry: Record<string, RegistryComponent> = {
 
 /** All registered component slugs. */
 export const registryNames = Object.keys(registry);
+
+/**
+ * Look up the human-readable title for a component slug.
+ * Uses docsNav as the source of truth (handles cases like
+ * "Goals / Non-Goals" that naive capitalisation gets wrong).
+ */
+import { docsNav } from "@/config/docs";
+
+const titleBySlug = new Map(
+  docsNav
+    .flatMap((g) => g.items)
+    .map((item) => {
+      const slug = item.href.split("/").pop()!;
+      return [slug, item.title] as const;
+    }),
+);
+
+export function registryTitle(slug: string): string {
+  return (
+    titleBySlug.get(slug) ??
+    slug
+      .split("-")
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" ")
+  );
+}

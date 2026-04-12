@@ -1,13 +1,10 @@
-import { registry } from "@/lib/registry";
+import { registry, registryTitle } from "@/lib/registry";
 
 export async function GET() {
   const items = Object.values(registry).map((c) => ({
     name: c.name,
     type: "registry:ui",
-    title: c.name
-      .split("-")
-      .map((w) => w[0].toUpperCase() + w.slice(1))
-      .join(" "),
+    title: registryTitle(c.name),
     description: c.description,
     dependencies: c.dependencies,
     registryDependencies: c.registryDependencies,

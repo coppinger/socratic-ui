@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Socratic UI
 
-## Getting Started
+Structured input components for AI chat interfaces — low-friction elicitation patterns built on [shadcn/ui](https://ui.shadcn.com).
 
-First, run the development server:
+Instead of asking users to type everything in freeform text, Socratic UI provides structured alternatives that produce cleaner signal for the model and respect the user's attention.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**[Docs](https://socraticui.com/docs)** · **[Playground](https://socraticui.com/playground)** · **[Installation](https://socraticui.com/docs/installation)**
+
+## Install
+
+Socratic UI components are distributed as a [shadcn custom registry](https://ui.shadcn.com/docs/registry). Source files are copied into your project — no npm package to install.
+
+**1. Add the registry** to your `components.json`:
+
+```json
+{
+  "registries": {
+    "@socratic": "https://socraticui.com/r/{name}.json"
+  }
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**2. Install components:**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx shadcn add @socratic/single-select
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**3. Wire up with the AI SDK:**
 
-## Learn More
+```ts
+import { tool } from "ai";
+import { singleSelectQuestionSchema } from "@/components/socratic-ui/schemas";
 
-To learn more about Next.js, take a look at the following resources:
+const tools = {
+  askSingleSelect: tool({
+    description: "Ask the user to pick one option from a list",
+    parameters: singleSelectQuestionSchema,
+  }),
+};
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Every component has a matching Zod schema pair — question schema in, response schema out.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Components
 
-## Deploy on Vercel
+| Component | Description |
+|-----------|-------------|
+| Single Select | Pick one option from a list |
+| Multi Select | Pick up to N options |
+| Priority Rank | Drag to reorder priorities |
+| Fill Blank | Mad-libs template with inline editable slots |
+| Negation Select | Strike-through elimination |
+| Open Questions | Stack of open-ended textareas |
+| Spectrum | Slider between two labeled poles |
+| Agreement Spectrum | Likert-rate a batch of statements |
+| Card Sort | Multi-bucket triage (MoSCoW, etc.) |
+| Spatial Canvas | Two-axis canvas (effort × impact, etc.) |
+| Quick Estimate | Stacked single-pick lists |
+| Conditional Branch | Binary or four-way branch with follow-ups |
+| Matrix | Row × level grid assessment |
+| Goals / Non-Goals | Paired list builder |
+| User Story Builder | "As a ___, I want ___, so that ___" composer |
+| Metric Target | Pick a metric, set a numeric target and timeframe |
+| Question Sequence | Chain multiple components into a paginated flow |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
