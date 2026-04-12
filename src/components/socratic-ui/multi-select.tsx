@@ -19,6 +19,7 @@ import {
   QuestionFooter,
   QuestionHeader,
   SectionLabel,
+  SelectionStatus,
   useRovingFocus,
   useSequenceQuestion,
 } from "./shared";
@@ -89,12 +90,7 @@ function MultiSelectRows({
     hints: MULTI_SELECT_HINTS,
   });
 
-  const statusText = (
-    <>
-      <span className="font-semibold text-foreground">{selected.size}</span>{" "}
-      selected
-    </>
-  );
+  const statusText = <SelectionStatus count={selected.size} />;
 
   return (
     <QuestionCard

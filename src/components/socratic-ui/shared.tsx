@@ -4,6 +4,7 @@
 // `@/components/socratic-ui/shared`) keep working without churn.
 
 export { SectionLabel } from "./shared/section-label";
+export { SelectionStatus } from "./shared/selection-status";
 export { OptionCard } from "./shared/option-card";
 export { SuccessSummary } from "./shared/success-summary";
 export {

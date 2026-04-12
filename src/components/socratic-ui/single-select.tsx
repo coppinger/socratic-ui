@@ -10,6 +10,7 @@ import {
   MotionCard,
   MotionItem,
   MotionStage,
+  MULTI_SELECT_HINTS,
   OptionCard,
   type OptionIconAlignment,
   type OptionIconLayout,
@@ -20,6 +21,7 @@ import {
   QuestionHeader,
   type RovingFocusItemProps,
   SectionLabel,
+  SelectionStatus,
   SINGLE_SELECT_HINTS,
   useRovingFocus,
   useSequenceQuestion,
@@ -36,9 +38,9 @@ export interface SingleSelectProps {
   question: string;
   subtitle?: string;
   options: SingleSelectOption[];
-  /** Title of the currently selected option, or null when nothing is picked. */
-  value: string | null;
-  onChange: (value: string | null) => void;
+  /** Selected option title (single mode), array of titles (multi mode), or null. */
+  value: string | string[] | null;
+  onChange: (value: string | string[] | null) => void;
   /** Optional question number shown in the header (e.g. "01"). */
   number?: string;
   /** Placeholder for the freeform input. Defaults to `"Any extra context…"`. Pass `false` to hide. */
@@ -48,6 +50,12 @@ export interface SingleSelectProps {
   motion?: SocraticMotion;
   iconLayout?: OptionIconLayout;
   iconAlignment?: OptionIconAlignment;
+  /** Let the user switch into multi-select mode at will. */
+  allowMultiple?: boolean;
+  /** Soft cap shown in multi mode — exceeding it is allowed but flagged visually. Prefer over `max`. */
+  suggested?: number;
+  /** Hard cap in multi mode — unselected options are disabled at this count. */
+  max?: number;
 }
 
 export function SingleSelect(props: SingleSelectProps) {
@@ -63,6 +71,83 @@ export function SingleSelect(props: SingleSelectProps) {
   return <SingleSelectRows {...props} />;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Derive a Set of selected titles regardless of value shape. */
+function useSelected(value: string | string[] | null): Set<string> {
+  return React.useMemo(() => {
+    if (Array.isArray(value)) return new Set(value);
+    if (value !== null) return new Set([value]);
+    return new Set();
+  }, [value]);
+}
+
+/**
+ * Shared state logic for the optional multi-select override.
+ *
+ * `isMultiMode` is derived from the value shape rather than tracked as
+ * independent state — this prevents desync between the mode flag and the
+ * actual value when a parent re-renders with an unexpected shape.
+ */
+function useMultiMode({
+  value,
+  onChange,
+  allowMultiple,
+  suggested,
+  max,
+}: Pick<
+  SingleSelectProps,
+  "value" | "onChange" | "allowMultiple" | "suggested" | "max"
+>) {
+  // Warn once if the caller provides contradictory caps.
+  React.useEffect(() => {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      suggested != null &&
+      max != null &&
+      max < suggested
+    ) {
+      console.warn(
+        "SingleSelect: `max` (%d) should be >= `suggested` (%d) when both are set",
+        max,
+        suggested,
+      );
+    }
+  }, [suggested, max]);
+
+  const isMultiMode = !!allowMultiple && Array.isArray(value);
+  const selected = useSelected(value);
+  const canAddMore = !max || selected.size < max;
+
+  /** Flip between single and multi mode by reshaping the value. */
+  const toggleMode = () => {
+    if (isMultiMode) {
+      if (Array.isArray(value)) onChange(value[0] ?? null);
+    } else {
+      if (value === null) onChange([]);
+      else if (!Array.isArray(value)) onChange([value]);
+    }
+  };
+
+  const toggleByTitle = (title: string) => {
+    if (isMultiMode) {
+      const arr = Array.isArray(value) ? value : [];
+      if (selected.has(title)) {
+        onChange(arr.filter((item) => item !== title));
+      } else {
+        if (!canAddMore) return;
+        onChange([...arr, title]);
+      }
+    } else {
+      onChange(value === title ? null : title);
+    }
+  };
+
+  return { isMultiMode, selected, canAddMore, toggleMode, toggleByTitle };
+}
+
+// ─── Rows ─────────────────────────────────────────────────────────────────────
+
 function SingleSelectRows({
   question,
   subtitle,
@@ -74,7 +159,13 @@ function SingleSelectRows({
   freeformValue,
   onFreeformChange,
   motion,
+  allowMultiple,
+  suggested,
+  max,
 }: SingleSelectProps) {
+  const { isMultiMode, selected, canAddMore, toggleMode, toggleByTitle } =
+    useMultiMode({ value, onChange, allowMultiple, suggested, max });
+
   const showFreeform = freeformPlaceholder !== false;
   const resolvedPlaceholder =
     typeof freeformPlaceholder === "string"
@@ -91,7 +182,7 @@ function SingleSelectRows({
     if (showFreeform && index === options.length) return;
     const option = options[index];
     if (!option) return;
-    onChange(value === option.title ? null : option.title);
+    toggleByTitle(option.title);
   };
 
   const { activeIndex, getItemProps, focusItem } = useRovingFocus({
@@ -101,33 +192,68 @@ function SingleSelectRows({
 
   const focusFirst = React.useCallback(() => focusItem(0), [focusItem]);
   const sequence = useSequenceQuestion({
-    canSubmit: value !== null,
+    canSubmit: isMultiMode ? selected.size > 0 : value !== null,
     focusFirst,
-    hints: SINGLE_SELECT_HINTS,
+    hints: isMultiMode ? MULTI_SELECT_HINTS : SINGLE_SELECT_HINTS,
   });
 
   return (
     <QuestionCard
       motion={motion}
       header={
-        <QuestionHeader title={question} subtitle={subtitle} number={number} />
+        <>
+          <QuestionHeader
+            title={question}
+            subtitle={subtitle}
+            number={number}
+          />
+          {allowMultiple ? (
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="mt-2 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {isMultiMode ? "Back to single select" : "Select multiple"}
+            </button>
+          ) : null}
+        </>
       }
-      footer={sequence ? <QuestionFooter /> : null}
+      footer={
+        sequence || (isMultiMode && selected.size > 0) ? (
+          <QuestionFooter
+            statusText={
+              isMultiMode ? (
+                <SelectionStatus
+                  count={selected.size}
+                  suggested={suggested}
+                />
+              ) : undefined
+            }
+          />
+        ) : null
+      }
     >
       <MotionStage motion={motion} className="divide-y divide-border/60">
         {options.map((option, index) => {
-          const selected = value === option.title;
+          const isSelected = selected.has(option.title);
           return (
             <MotionItem motion={motion} key={option.title}>
               <OptionRow
                 title={option.title}
                 subtitle={option.subtitle}
-                selected={selected}
+                selected={isSelected}
                 focused={activeIndex === index}
+                disabled={isMultiMode && !canAddMore && !isSelected}
                 onSelect={() => toggle(index)}
-                leading={{ kind: "number", value: index + 1 }}
+                leading={
+                  isMultiMode
+                    ? { kind: "checkbox" }
+                    : { kind: "number", value: index + 1 }
+                }
                 trailing={
-                  selected ? <ArrowRight className="size-4" /> : null
+                  !isMultiMode && isSelected ? (
+                    <ArrowRight className="size-4" />
+                  ) : null
                 }
                 rowProps={getItemProps(index)}
               />
@@ -150,6 +276,8 @@ function SingleSelectRows({
   );
 }
 
+// ─── Freeform ─────────────────────────────────────────────────────────────────
+
 function FreeformRow({
   placeholder,
   value,
@@ -167,7 +295,8 @@ function FreeformRow({
   // are buttons; the freeform row IS the input itself. Cast the whole
   // props shape once so the input can adopt them directly — the hook only
   // calls `.focus()` on the stored ref, which works on any `HTMLElement`.
-  const inputRowProps = rowProps as unknown as RovingFocusItemProps<HTMLInputElement>;
+  const inputRowProps =
+    rowProps as unknown as RovingFocusItemProps<HTMLInputElement>;
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     // Home/End must keep editing the typed text — don't let the roving
@@ -208,6 +337,8 @@ function FreeformRow({
   );
 }
 
+// ─── Tiles ────────────────────────────────────────────────────────────────────
+
 function SingleSelectTiles({
   question,
   subtitle,
@@ -221,7 +352,13 @@ function SingleSelectTiles({
   motion,
   iconLayout = "vertical",
   iconAlignment = "left",
+  allowMultiple,
+  suggested,
+  max,
 }: SingleSelectProps) {
+  const { isMultiMode, selected, canAddMore, toggleMode, toggleByTitle } =
+    useMultiMode({ value, onChange, allowMultiple, suggested, max });
+
   const showFreeform = freeformPlaceholder !== false;
   const resolvedPlaceholder =
     typeof freeformPlaceholder === "string"
@@ -235,22 +372,38 @@ function SingleSelectTiles({
     <MotionCard motion={motion} className="gap-4 px-7 py-6">
       <CardContent className="px-0">
         <SectionLabel number={number} title={question} subtitle={subtitle} />
+        {allowMultiple ? (
+          <button
+            type="button"
+            onClick={toggleMode}
+            className="-mt-1 mb-3 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {isMultiMode ? "Back to single select" : "Select multiple"}
+          </button>
+        ) : null}
+        {isMultiMode && selected.size > 0 ? (
+          <p className="mb-3.5 -mt-1 text-[13px] text-muted-foreground">
+            <SelectionStatus count={selected.size} suggested={suggested} />
+          </p>
+        ) : null}
         <MotionStage motion={motion} className={optionListClass(iconLayout)}>
-          {options.map((option) => (
-            <MotionItem motion={motion} key={option.title}>
-              <OptionCard
-                title={option.title}
-                subtitle={option.subtitle}
-                icon={option.icon}
-                iconLayout={iconLayout}
-                iconAlignment={iconAlignment}
-                selected={value === option.title}
-                onSelect={() =>
-                  onChange(value === option.title ? null : option.title)
-                }
-              />
-            </MotionItem>
-          ))}
+          {options.map((option) => {
+            const isSelected = selected.has(option.title);
+            return (
+              <MotionItem motion={motion} key={option.title}>
+                <OptionCard
+                  title={option.title}
+                  subtitle={option.subtitle}
+                  icon={option.icon}
+                  iconLayout={iconLayout}
+                  iconAlignment={iconAlignment}
+                  selected={isSelected}
+                  disabled={isMultiMode && !canAddMore && !isSelected}
+                  onSelect={() => toggleByTitle(option.title)}
+                />
+              </MotionItem>
+            );
+          })}
         </MotionStage>
         {showFreeform ? (
           <textarea

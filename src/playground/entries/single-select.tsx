@@ -19,7 +19,7 @@ function SingleSelectRenderer({
   motion,
   optionIcons,
 }: RendererProps<"single-select">) {
-  const [value, setValue] = useState<string | null>(null);
+  const [value, setValue] = useState<string | string[] | null>(null);
   const [freeformValue, setFreeformValue] = useState("");
   const options = useGeneratedOptionIcons(node.props.options, optionIcons?.show);
 
@@ -36,6 +36,9 @@ function SingleSelectRenderer({
       motion={motion}
       iconLayout={optionIcons?.layout}
       iconAlignment={optionIcons?.alignment}
+      allowMultiple={node.props.allowMultiple}
+      suggested={node.props.suggested}
+      max={node.props.max}
     />
   );
 }
@@ -72,6 +75,27 @@ export const singleSelectEntry: PlaygroundEntry<"single-select"> = {
       path: "freeformPlaceholder",
       label: "Freeform placeholder",
       placeholder: "(off — leave empty to hide textarea)",
+    },
+    {
+      kind: "boolean",
+      path: "allowMultiple",
+      label: "Allow multiple",
+    },
+    {
+      kind: "number",
+      path: "suggested",
+      label: "Suggested (soft cap)",
+      min: 1,
+      max: 12,
+      step: 1,
+    },
+    {
+      kind: "number",
+      path: "max",
+      label: "Max (hard cap)",
+      min: 1,
+      max: 12,
+      step: 1,
     },
   ],
   scenarios: [
@@ -186,6 +210,30 @@ export const singleSelectEntry: PlaygroundEntry<"single-select"> = {
           ...node.props,
           freeformPlaceholder: false as unknown as string,
         },
+      }),
+    },
+    {
+      id: "allow-multiple",
+      label: "Allow multiple",
+      apply: (node) => ({
+        ...node,
+        props: { ...node.props, allowMultiple: true },
+      }),
+    },
+    {
+      id: "allow-multiple-suggested",
+      label: "Multiple + suggested 2",
+      apply: (node) => ({
+        ...node,
+        props: { ...node.props, allowMultiple: true, suggested: 2 },
+      }),
+    },
+    {
+      id: "allow-multiple-max",
+      label: "Multiple + max 3",
+      apply: (node) => ({
+        ...node,
+        props: { ...node.props, allowMultiple: true, max: 3 },
       }),
     },
   ],

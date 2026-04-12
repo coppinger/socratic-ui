@@ -5,7 +5,7 @@ import { useState } from "react";
 import { SingleSelect } from "@/components/socratic-ui/single-select";
 
 export function SingleSelectDemo() {
-  const [setup, setSetup] = useState<string | null>(null);
+  const [setup, setSetup] = useState<string | string[] | null>(null);
   const [setupNote, setSetupNote] = useState("");
 
   return (

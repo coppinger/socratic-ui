@@ -30,7 +30,7 @@ export function QuestionSequenceDemo() {
                   { title: "Just vibing" },
                 ]}
                 freeformPlaceholder="Something else"
-                {...seq.bind<string | null>("vibe", null)}
+                {...seq.bind<string | string[] | null>("vibe", null)}
               />
             );
           case "tools":

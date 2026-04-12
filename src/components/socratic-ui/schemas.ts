@@ -21,10 +21,16 @@ export const singleSelectQuestionSchema = z.object({
   subtitle: z.string().optional(),
   options: z.array(optionSchema).min(2),
   freeformPlaceholder: z.string().optional(),
+  /** Let the user switch into multi-select mode at will. */
+  allowMultiple: z.boolean().optional(),
+  /** Soft cap shown in multi mode — exceeding it is allowed but flagged visually. Prefer over `max`. */
+  suggested: z.number().int().positive().optional(),
+  /** Hard cap in multi mode — unselected options are disabled at this count. */
+  max: z.number().int().positive().optional(),
 });
 
 export const singleSelectResponseSchema = z.object({
-  selected: z.string().nullable(),
+  selected: z.union([z.string(), z.array(z.string())]).nullable(),
   freeformText: z.string().optional(),
 });
 
