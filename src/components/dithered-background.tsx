@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { ImageDithering } from "@paper-design/shaders-react";
 import {
   ShaderDevPanel,
@@ -8,11 +8,38 @@ import {
   type ShaderSettings,
 } from "./shader-dev-panel";
 
+const mobileQuery =
+  typeof window !== "undefined"
+    ? window.matchMedia("(max-width: 767px)")
+    : null;
+
+function subscribeToMobile(cb: () => void) {
+  mobileQuery?.addEventListener("change", cb);
+  return () => mobileQuery?.removeEventListener("change", cb);
+}
+
+function getIsMobile() {
+  return mobileQuery?.matches ?? false;
+}
+
+function getIsMobileServer() {
+  return false;
+}
+
 export function DitheredBackground() {
+  const isMobile = useSyncExternalStore(
+    subscribeToMobile,
+    getIsMobile,
+    getIsMobileServer,
+  );
   const [s, setS] = useState<ShaderSettings>(defaultSettings);
   const [fadeIn, setFadeIn] = useState(false);
   const frameRef = useRef(0);
   const [drift, setDrift] = useState({ scale: 0, offsetX: 0, offsetY: 0 });
+
+  const fit = isMobile ? "cover" : s.fit;
+  const baseOffsetX = isMobile ? 0 : s.offsetX;
+  const baseOffsetY = isMobile ? 0 : s.offsetY;
 
   // Trigger fade-in after mount
   useEffect(() => {
@@ -56,11 +83,11 @@ export function DitheredBackground() {
           type={s.type}
           size={s.size}
           colorSteps={s.colorSteps}
-          fit={s.fit}
+          fit={fit}
           scale={s.scale + drift.scale}
           rotation={s.rotation}
-          offsetX={s.offsetX + drift.offsetX}
-          offsetY={s.offsetY + drift.offsetY}
+          offsetX={baseOffsetX + drift.offsetX}
+          offsetY={baseOffsetY + drift.offsetY}
           speed={s.speed}
         />
       </div>

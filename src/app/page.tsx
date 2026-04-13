@@ -1,11 +1,25 @@
 import Link from "next/link";
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRight, ArrowRightIcon, PencilLine } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { docsNav } from "@/config/docs";
 
 const GITHUB_URL = "https://github.com/coppinger/socratic-ui";
+
+type Contributor = { login: string; avatar_url: string; html_url: string };
+
+async function getContributors(): Promise<Contributor[]> {
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/coppinger/socratic-ui/contributors?per_page=20",
+      { next: { revalidate: 3600 } },
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -20,13 +34,12 @@ function GitHubIcon({ className }: { className?: string }) {
   );
 }
 
-export default function LandingPage() {
-  const components =
-    docsNav.find((group) => group.title === "Components")?.items ?? [];
+export default async function LandingPage() {
+  const contributors = await getContributors();
 
   return (
     <div className="flex min-h-svh flex-1 flex-col">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <Link
           href="/"
           className="font-mono text-sm font-medium tracking-tight text-foreground"
@@ -70,8 +83,9 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-20 px-6 pt-16 pb-24">
-        <section className="flex flex-col items-start gap-6">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 items-center gap-12 px-6 pt-8 pb-24 lg:gap-16">
+        {/* Left column — hero */}
+        <section className="flex flex-1 flex-col items-start gap-6">
           <a
             href={GITHUB_URL}
             target="_blank"
@@ -82,11 +96,11 @@ export default function LandingPage() {
             Open source on GitHub
             <ArrowRightIcon className="size-3 -translate-x-0.5 transition-transform group-hover:translate-x-0" />
           </a>
-          <h1 className="max-w-3xl text-balance text-5xl font-bold tracking-tight text-foreground sm:text-6xl">
+          <h1 className="max-w-xl text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Replace freeform prompts with{" "}
             <span className="text-primary">low-friction elicitation</span>.
           </h1>
-          <p className="max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
+          <p className="max-w-lg text-pretty text-lg leading-relaxed text-muted-foreground">
             Socratic UI is an open source set of structured input components
             for AI chat interfaces. Instead of asking users to type everything,
             these patterns produce cleaner signal for the model and respect
@@ -128,45 +142,44 @@ export default function LandingPage() {
               Star on GitHub
             </Button>
           </div>
+          {contributors.length > 0 && (
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {contributors.map((c) => (
+                  <a
+                    key={c.login}
+                    href={c.html_url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    aria-label={c.login}
+                  >
+                    <img
+                      src={`${c.avatar_url}&s=64`}
+                      alt={c.login}
+                      width={32}
+                      height={32}
+                      className="size-8 rounded-full border-2 border-background transition-transform hover:-translate-y-0.5"
+                    />
+                  </a>
+                ))}
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {contributors.length === 1
+                  ? "1 contributor"
+                  : `${contributors.length} contributors`}
+              </span>
+            </div>
+          )}
         </section>
 
-        <section className="flex flex-col gap-6">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2
-              id="components"
-              className="scroll-mt-24 text-xl font-semibold tracking-tight text-foreground"
-            >
-              {components.length} components
-            </h2>
-            <Link
-              href="/docs/components"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              View all →
-            </Link>
-          </div>
-          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {components.map((component) => (
-              <li key={component.href}>
-                <Link
-                  href={component.href}
-                  className="group flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-accent-soft"
-                >
-                  <span className="text-sm font-semibold tracking-tight text-foreground">
-                    {component.title}
-                  </span>
-                  <span className="text-sm leading-relaxed text-muted-foreground">
-                    {component.description}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* Right column — mock chat preview */}
+        <div className="hidden w-full max-w-md shrink-0 lg:block">
+          <MockChatPreview />
+        </div>
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex w-full max-w-5xl flex-col items-start justify-between gap-2 px-6 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-2 px-6 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <span>
             Open source. Built on{" "}
             <a
@@ -190,6 +203,127 @@ export default function LandingPage() {
           </a>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function MockChatPreview() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+      {/* Header bar */}
+      <div className="flex h-9 items-center border-b border-border px-4 font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        Mock chat
+      </div>
+
+      {/* Messages */}
+      <div className="flex flex-col gap-6 p-5">
+        {/* User message */}
+        <div className="mock-stage-1 flex w-full max-w-[95%] flex-col gap-2 ml-auto justify-end">
+          <div className="ml-auto w-fit rounded-lg bg-secondary px-4 py-3 text-sm text-foreground">
+            <p className="leading-relaxed">
+              I have a four-day weekend coming up and I want to get away
+              somewhere I haven&apos;t been before. Help me decide.
+            </p>
+          </div>
+        </div>
+
+        {/* Typing indicator + assistant message share the same slot */}
+        <div className="relative flex w-full max-w-[95%] flex-col gap-2">
+          {/* Typing indicator — absolutely positioned so it doesn't affect layout */}
+          <div className="mock-stage-2 absolute inset-0 flex items-center gap-2 text-muted-foreground">
+            <span className="flex size-3.5 items-center justify-center">
+              <svg
+                className="size-3.5 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+            </span>
+            <span className="animate-pulse font-mono text-[11px] uppercase tracking-wider">
+              Generating
+            </span>
+          </div>
+
+          {/* Assistant message */}
+          <div className="mock-stage-3 w-fit text-sm text-foreground">
+            <p className="leading-relaxed">
+              Love that. Quick question to narrow it down &mdash; what kind of
+              vibe are you after?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Composer slot — static single-select */}
+      <div className="mock-stage-4 border-t border-border">
+        <div className="px-5 pt-5 pb-4">
+          <div className="rounded-xl border border-border bg-card">
+            <div className="px-5 pt-5 pb-3">
+              <p className="text-[15px] font-semibold text-foreground">
+                What kind of trip are you after?
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Pick the one that pulls at you most.
+              </p>
+            </div>
+            <div className="divide-y divide-border/60">
+              {[
+                {
+                  n: 1,
+                  title: "Coastal escape",
+                  subtitle: "Salt air, slow mornings, fresh seafood.",
+                },
+                {
+                  n: 2,
+                  title: "Mountain reset",
+                  subtitle: "Hikes, big skies, no agenda.",
+                },
+                {
+                  n: 3,
+                  title: "City to explore",
+                  subtitle: "Museums, neighborhoods, late dinners.",
+                  selected: true,
+                },
+              ].map((opt) => (
+                <div
+                  key={opt.n}
+                  className={`flex cursor-pointer items-center gap-4 px-5 py-4 transition-colors ${opt.selected ? "bg-[var(--accent-soft)]" : "hover:bg-muted/60"}`}
+                >
+                  <span
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-medium ${opt.selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                  >
+                    {opt.n}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[15px] font-semibold text-foreground">
+                      {opt.title}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {opt.subtitle}
+                    </p>
+                  </div>
+                  {opt.selected && (
+                    <ArrowRight className="size-4 shrink-0 text-foreground" />
+                  )}
+                </div>
+              ))}
+              <div className="flex cursor-pointer items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/60">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                  <PencilLine className="size-4" />
+                </span>
+                <span className="text-[15px] text-muted-foreground">
+                  Or describe something else&hellip;
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

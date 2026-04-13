@@ -35,11 +35,11 @@ export const defaultSettings: ShaderSettings = {
   colorSteps: 7,
   originalColors: false,
   inverted: false,
-  fit: "contain",
+  fit: "cover",
   scale: 1,
   rotation: 0,
-  offsetX: 0,
-  offsetY: -0.3,
+  offsetX: -0.3,
+  offsetY: 0.17,
   speed: 1.3,
 };
 

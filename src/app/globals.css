@@ -185,3 +185,54 @@
     cursor: pointer;
   }
 }
+
+/* ── Mock-chat staged entrance ────────────────────────────────────── */
+
+@keyframes mock-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Stage 1: user message        – 0 ms
+ * Stage 2: typing indicator    – 600 ms, hides at 1800 ms
+ * Stage 3: assistant message   – 1800 ms
+ * Stage 4: composer component  – 2400 ms
+ */
+
+.mock-stage-1 {
+  opacity: 0;
+  animation: mock-fade-in 400ms ease-out forwards;
+}
+
+.mock-stage-2 {
+  opacity: 0;
+  animation:
+    mock-fade-in 300ms ease-out 600ms forwards,
+    mock-fade-out 300ms ease-in 1500ms forwards;
+}
+
+.mock-stage-3 {
+  opacity: 0;
+  animation: mock-fade-in 400ms ease-out 1800ms forwards;
+}
+
+.mock-stage-4 {
+  opacity: 0;
+  animation: mock-fade-in 500ms ease-out 2400ms forwards;
+}
+
+@keyframes mock-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
