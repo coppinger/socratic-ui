@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# editor/AI tool configs
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.vscode/
+.zed/
+.mcp.json
+config/
+opencode.json
+.checkpoint.json
