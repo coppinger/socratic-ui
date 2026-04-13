@@ -23,12 +23,15 @@ export const metadata: Metadata = {
   description:
     "Structured input components for AI chat interfaces — low-friction elicitation patterns built on shadcn/ui.",
   openGraph: {
+    url: "https://socraticui.com",
     siteName: "Socratic UI",
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    site: "@thecoppinger",
+    creator: "@thecoppinger",
   },
 };
 
