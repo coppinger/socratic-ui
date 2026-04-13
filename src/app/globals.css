@@ -247,3 +247,31 @@
     opacity: 0;
   }
 }
+
+/* ── Animated gradient border ────────────────────────────────────── */
+
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.animated-gradient-border {
+  padding: 1px;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    transparent 0deg,
+    rgba(255, 203, 179, 0.5) 80deg,
+    rgba(255, 80, 1, 0.6) 100deg,
+    rgba(255, 203, 179, 0.5) 120deg,
+    transparent 140deg,
+    transparent 360deg
+  );
+  animation: gradient-rotate 4s linear infinite;
+}
+
+@keyframes gradient-rotate {
+  to {
+    --gradient-angle: 360deg;
+  }
+}

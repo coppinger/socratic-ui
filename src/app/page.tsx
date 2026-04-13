@@ -172,13 +172,13 @@ export default async function LandingPage() {
           )}
         </section>
 
-        {/* Right column — mock chat preview */}
+        {/* Right column — app preview */}
         <div className="hidden w-full max-w-md shrink-0 lg:block">
           <MockChatPreview />
         </div>
       </main>
 
-      <footer className="border-t border-border">
+      <footer className="sticky bottom-0 border-t border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-2 px-6 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <span>
             Open source. Built on{" "}
@@ -227,7 +227,7 @@ function MockChatPreview() {
     <div className="overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
       {/* Header bar */}
       <div className="flex h-9 items-center border-b border-border px-4 font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-        Mock chat
+        your ai app
       </div>
 
       {/* Messages */}
@@ -277,7 +277,8 @@ function MockChatPreview() {
       {/* Composer slot — static single-select */}
       <div className="mock-stage-4 border-t border-border">
         <div className="px-5 pt-5 pb-4">
-          <div className="rounded-xl border border-border bg-card">
+          <div className="animated-gradient-border rounded-xl">
+          <div className="relative z-10 overflow-hidden rounded-[calc(var(--radius-xl)-1px)] bg-card">
             <div className="px-5 pt-5 pb-3">
               <p className="text-[15px] font-semibold text-foreground">
                 What kind of trip are you after?
@@ -336,6 +337,7 @@ function MockChatPreview() {
                 </span>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
