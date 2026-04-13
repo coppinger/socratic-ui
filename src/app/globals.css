@@ -14,6 +14,17 @@
   --color-negation: var(--negation);
   --color-negation-soft: var(--negation-soft);
   --color-text-soft: var(--text-soft);
+  --color-brand-50: #FEF5F0;
+  --color-brand-100: #FFE6D9;
+  --color-brand-200: #FFCBB3;
+  --color-brand-300: #FFAC80;
+  --color-brand-400: #FE8A4D;
+  --color-brand-500: #FF5001;
+  --color-brand-600: #E54700;
+  --color-brand-700: #CD3F01;
+  --color-brand-800: #B33701;
+  --color-brand-900: #992E00;
+  --color-brand-950: #802800;
   --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
   --font-heading: var(--font-sans);
@@ -63,17 +74,17 @@
   --card-foreground: #1a1612;
   --popover: #ffffff;
   --popover-foreground: #1a1612;
-  /* Accent orange used throughout the structured-input system */
-  --primary: #c75b2a;
+  /* Brand — Buildstory Orange */
+  --primary: #FF5001;
   --primary-foreground: #ffffff;
   --secondary: #f5f3f0;
   --secondary-foreground: #1a1612;
   --muted: #f5f3f0;
   /* #807a74 hits ≥4.5:1 on the white card surface for WCAG AA normal text. */
   --muted-foreground: #807a74;
-  --accent: #c75b2a;
+  --accent: #FF5001;
   --accent-foreground: #ffffff;
-  --accent-soft: rgba(199, 91, 42, 0.094);
+  --accent-soft: rgba(255, 80, 1, 0.094);
   --success: #2a7f5b;
   --success-foreground: #ffffff;
   --success-soft: rgba(42, 127, 91, 0.078);
@@ -83,8 +94,8 @@
   --destructive: #d43428;
   --border: #e8e4df;
   --input: #e8e4df;
-  --ring: #c75b2a;
-  --chart-1: #c75b2a;
+  --ring: #FF5001;
+  --chart-1: #FF5001;
   --chart-2: #2a7f5b;
   --chart-3: #6b6560;
   --chart-4: #9c958e;
@@ -92,12 +103,12 @@
   --radius: 0.75rem;
   --sidebar: #faf9f7;
   --sidebar-foreground: #1a1612;
-  --sidebar-primary: #c75b2a;
+  --sidebar-primary: #FF5001;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f5f3f0;
   --sidebar-accent-foreground: #1a1612;
   --sidebar-border: #e8e4df;
-  --sidebar-ring: #c75b2a;
+  --sidebar-ring: #FF5001;
 }
 
 .dark {
@@ -110,16 +121,16 @@
   --card-foreground: #faf9f7;
   --popover: #181513;
   --popover-foreground: #faf9f7;
-  --primary: #d96935;
+  --primary: #FF5001;
   --primary-foreground: #ffffff;
   --secondary: #24201c;
   --secondary-foreground: #faf9f7;
   --muted: #24201c;
   /* #a8a099 on #181513 ≈ 7:1 (AAA) for secondary text on card surfaces. */
   --muted-foreground: #a8a099;
-  --accent: #d96935;
+  --accent: #FF5001;
   --accent-foreground: #ffffff;
-  --accent-soft: rgba(217, 105, 53, 0.16);
+  --accent-soft: rgba(255, 80, 1, 0.16);
   --success: #3fa074;
   --success-foreground: #ffffff;
   --success-soft: rgba(63, 160, 116, 0.14);
@@ -129,20 +140,20 @@
   --destructive: #e04c40;
   --border: #2e2925;
   --input: #2e2925;
-  --ring: #d96935;
-  --chart-1: #d96935;
+  --ring: #FF5001;
+  --chart-1: #FF5001;
   --chart-2: #3fa074;
   --chart-3: #8f8782;
   --chart-4: #5e5955;
   --chart-5: #faf9f7;
   --sidebar: #0f0d0b;
   --sidebar-foreground: #faf9f7;
-  --sidebar-primary: #d96935;
+  --sidebar-primary: #FF5001;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #24201c;
   --sidebar-accent-foreground: #faf9f7;
   --sidebar-border: #2e2925;
-  --sidebar-ring: #d96935;
+  --sidebar-ring: #FF5001;
 }
 
 /* ── Recommended-option shimmer ─────────────────────────────────────── */

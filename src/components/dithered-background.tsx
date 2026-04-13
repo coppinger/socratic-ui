@@ -2,11 +2,7 @@
 
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { ImageDithering } from "@paper-design/shaders-react";
-import {
-  ShaderDevPanel,
-  defaultSettings,
-  type ShaderSettings,
-} from "./shader-dev-panel";
+import { defaultSettings, type ShaderSettings } from "./shader-dev-panel";
 
 const mobileQuery =
   typeof window !== "undefined"
@@ -91,7 +87,6 @@ export function DitheredBackground() {
           speed={s.speed}
         />
       </div>
-      <ShaderDevPanel settings={s} onChange={setS} />
     </>
   );
 }

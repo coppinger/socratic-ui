@@ -192,15 +192,30 @@ export default async function LandingPage() {
             </a>{" "}
             and the Vercel AI SDK.
           </span>
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center gap-1.5 font-mono hover:text-foreground"
-          >
-            <GitHubIcon className="size-3.5" />
-            coppinger/socratic-ui
-          </a>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://www.buildstory.com"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="hover:opacity-80"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://www.buildstory.com/buildstory-logo.svg"
+                alt="BuildStory"
+                className="h-4"
+              />
+            </a>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 font-mono hover:text-foreground"
+            >
+              <GitHubIcon className="size-3.5" />
+              coppinger/socratic-ui
+            </a>
+          </div>
         </div>
       </footer>
     </div>
