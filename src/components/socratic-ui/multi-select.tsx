@@ -14,6 +14,7 @@ import {
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
+  optionListClassName,
   OptionRow,
   QuestionCard,
   QuestionFooter,
@@ -99,12 +100,13 @@ function MultiSelectRows({
         <QuestionHeader title={question} subtitle={subtitle} number={number} />
       }
       footer={
-        sequence || selected.size > 0 ? (
-          <QuestionFooter statusText={statusText} />
-        ) : null
+        <QuestionFooter
+          hints={MULTI_SELECT_HINTS}
+          statusText={selected.size > 0 ? statusText : undefined}
+        />
       }
     >
-      <MotionStage motion={motion} className="divide-y divide-border/60">
+      <MotionStage motion={motion} className={optionListClassName}>
         {options.map((option, index) => {
           const isSelected = selected.has(option.title);
           const atLimit = !isSelected && selected.size >= max;

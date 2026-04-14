@@ -14,6 +14,7 @@ import {
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
+  optionListClassName,
   OptionRow,
   QuestionCard,
   QuestionFooter,
@@ -98,12 +99,10 @@ function NegationSelectRows({
         <QuestionHeader title={question} subtitle={subtitle} number={number} />
       }
       footer={
-        sequence || statusText ? (
-          <QuestionFooter statusText={statusText} />
-        ) : null
+        <QuestionFooter hints={NEGATION_SELECT_HINTS} statusText={statusText} />
       }
     >
-      <MotionStage motion={motion} className="divide-y divide-border/60">
+      <MotionStage motion={motion} className={optionListClassName}>
         {options.map((option, index) => {
           const killed = eliminated.has(option.title);
           return (

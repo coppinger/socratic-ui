@@ -20,7 +20,11 @@ export {
 } from "./shared/icon-settings";
 
 // New primitives introduced by the Claude-style redesign.
-export { OptionRow, type OptionRowProps } from "./shared/option-row";
+export {
+  OptionRow,
+  optionListClassName,
+  type OptionRowProps,
+} from "./shared/option-row";
 export {
   QuestionCard,
   QuestionHeader,

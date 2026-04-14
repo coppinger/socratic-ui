@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -155,9 +154,6 @@ function DimensionSection({
                 focused={activeIndex === optionIndex}
                 onSelect={() => onSelect(option.title)}
                 leading={{ kind: "none" }}
-                trailing={
-                  isSelected ? <ArrowRight className="size-4" /> : null
-                }
                 rowProps={getItemProps(optionIndex)}
                 className={cn("px-4 py-3")}
               />

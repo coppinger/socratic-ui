@@ -5,7 +5,6 @@ import { AnimatePresence, motion as m } from "motion/react";
 
 import {
   type KeyboardHint,
-  KeyboardHintFooter,
   SequenceContext,
   type SequenceContextValue,
   SINGLE_SELECT_HINTS,
@@ -137,7 +136,6 @@ export function SequenceShell({ controller, render }: SequenceShellProps) {
             {render(currentId)}
           </m.div>
         </AnimatePresence>
-        <KeyboardHintFooter hints={activeHints} />
       </div>
     </SequenceContext.Provider>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, PencilLine } from "lucide-react";
+import { PencilLine } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ import {
   type OptionIconAlignment,
   type OptionIconLayout,
   optionListClass,
+  optionListClassName,
   OptionRow,
   QuestionCard,
   QuestionFooter,
@@ -221,21 +222,20 @@ function SingleSelectRows({
         </>
       }
       footer={
-        sequence || (isMultiMode && selected.size > 0) ? (
-          <QuestionFooter
-            statusText={
-              isMultiMode ? (
-                <SelectionStatus
-                  count={selected.size}
-                  suggested={suggested}
-                />
-              ) : undefined
-            }
-          />
-        ) : null
+        <QuestionFooter
+          hints={isMultiMode ? MULTI_SELECT_HINTS : SINGLE_SELECT_HINTS}
+          statusText={
+            isMultiMode && selected.size > 0 ? (
+              <SelectionStatus
+                count={selected.size}
+                suggested={suggested}
+              />
+            ) : undefined
+          }
+        />
       }
     >
-      <MotionStage motion={motion} className="divide-y divide-border/60">
+      <MotionStage motion={motion} className={optionListClassName}>
         {options.map((option, index) => {
           const isSelected = selected.has(option.title);
           return (
@@ -252,11 +252,6 @@ function SingleSelectRows({
                   isMultiMode
                     ? { kind: "checkbox" }
                     : { kind: "number", value: index + 1 }
-                }
-                trailing={
-                  !isMultiMode && isSelected ? (
-                    <ArrowRight className="size-4" />
-                  ) : null
                 }
                 rowProps={getItemProps(index)}
               />
@@ -311,17 +306,16 @@ function FreeformRow({
 
   return (
     <div
+      data-freeform="true"
       className={cn(
-        "group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors",
-        "has-[input:focus-visible]:bg-muted/60",
-        focused && "bg-muted/60",
+        "group flex w-full items-center gap-3 rounded-lg bg-muted/60 px-3 py-3 text-left transition-colors",
       )}
     >
       <span
         aria-hidden
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground"
+        className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[10px] bg-muted text-muted-foreground"
       >
-        <PencilLine className="size-4" />
+        <PencilLine className="size-3.5" />
       </span>
       <input
         {...inputRowProps}
@@ -332,8 +326,8 @@ function FreeformRow({
         placeholder={placeholder}
         aria-label={placeholder}
         className={cn(
-          "min-w-0 flex-1 border-0 bg-transparent text-[15px] font-semibold text-foreground outline-hidden",
-          "placeholder:font-normal placeholder:text-muted-foreground",
+          "min-w-0 flex-1 border-0 bg-transparent text-sm font-medium text-foreground outline-hidden",
+          "placeholder:text-sm placeholder:font-normal placeholder:text-muted-foreground",
         )}
       />
     </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +10,7 @@ import {
   CONDITIONAL_BRANCH_HINTS,
   MotionItem,
   MotionStage,
+  optionListClassName,
   OptionRow,
   QuestionCard,
   QuestionFooter,
@@ -116,9 +116,9 @@ export function ConditionalBranch({
       header={
         <QuestionHeader title={question} subtitle={subtitle} number={number} />
       }
-      footer={sequence ? <QuestionFooter /> : null}
+      footer={<QuestionFooter hints={CONDITIONAL_BRANCH_HINTS} />}
     >
-      <MotionStage motion={motion} className="divide-y divide-border/60">
+      <MotionStage motion={motion} className={optionListClassName}>
         {options.map((option, index) => {
           const isSelected = option.id === value.selectedId;
           return (
@@ -130,9 +130,6 @@ export function ConditionalBranch({
                 focused={activeIndex === index}
                 onSelect={() => pickOption(option.id)}
                 leading={{ kind: "number", value: index + 1 }}
-                trailing={
-                  isSelected ? <ArrowRight className="size-4" /> : null
-                }
                 rowProps={getItemProps(index)}
               />
             </MotionItem>

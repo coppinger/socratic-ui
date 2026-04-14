@@ -46,7 +46,7 @@ const ICON_POOL = [
 
 export function generatedOptionIcon(index: number) {
   const Icon = ICON_POOL[index % ICON_POOL.length];
-  return <Icon className="size-[18px]" strokeWidth={1.75} aria-hidden />;
+  return <Icon className="size-4" strokeWidth={1.75} aria-hidden />;
 }
 
 /**

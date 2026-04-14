@@ -87,7 +87,7 @@ export function OpenQuestions({
         <div aria-live="polite" className="sr-only">
           {filledCount} of {prompts.length} answered
         </div>
-        <MotionStage motion={motion} className="divide-y divide-border/60">
+        <MotionStage motion={motion} className="p-1.5">
           {prompts.map((prompt, index) => {
             const promptValue = value[prompt.id] ?? "";
             const filled = promptValue.trim() !== "";

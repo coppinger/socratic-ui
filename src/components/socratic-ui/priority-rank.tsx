@@ -107,7 +107,7 @@ function PriorityRankRows({
         axis="y"
         values={order}
         onReorder={handleReorder}
-        className="flex flex-col divide-y divide-border/60"
+        className="flex flex-col p-1.5"
       >
         {order.map((title, index) => {
           const item = itemsByTitle.get(title);

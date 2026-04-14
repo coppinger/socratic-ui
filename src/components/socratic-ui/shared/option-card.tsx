@@ -137,7 +137,7 @@ export function OptionCard({
       >
         <div
           className={cn(
-            "text-sm font-semibold leading-tight",
+            "text-base font-medium leading-tight",
             selected && isNegation
               ? "text-[var(--negation)] line-through"
               : selected
