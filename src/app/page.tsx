@@ -128,7 +128,7 @@ export default async function LandingPage() {
             Open source on GitHub
             <ArrowRightIcon className="size-3 -translate-x-0.5 transition-transform group-hover:translate-x-0" />
           </a>
-          <h1 className="max-w-xl text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="max-w-xl text-balance text-4xl font-bold font-mackinac tracking-tight text-foreground sm:text-5xl">
             Replace freeform prompts with{" "}
             <span className="text-primary">low-friction elicitation</span>.
           </h1>

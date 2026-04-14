@@ -47,6 +47,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased overscroll-none`}
     >
       <body className="min-h-full flex flex-col">
+        <link rel="stylesheet" href="https://use.typekit.net/epe1mru.css" />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
