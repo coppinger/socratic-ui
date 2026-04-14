@@ -70,7 +70,7 @@ export function DitheredBackground() {
       >
         <ImageDithering
           style={{ width: "100%", height: "100%" }}
-          image="/socrates.png"
+          image="/socrates.jpg"
           colorBack={s.colorBack}
           colorFront={s.colorFront}
           colorHighlight={s.colorHighlight}

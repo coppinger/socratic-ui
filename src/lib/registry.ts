@@ -26,6 +26,7 @@ const sharedFiles = [
   "socratic-ui/shared/option-row.tsx",
   "socratic-ui/shared/option-card.tsx",
   "socratic-ui/shared/keyboard-hint.tsx",
+  "socratic-ui/shared/selection-status.tsx",
   "socratic-ui/shared/sequence-context.ts",
   "socratic-ui/shared/use-sequence-question.ts",
   "socratic-ui/shared/use-roving-focus.ts",

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { ComponentPage } from "@/components/docs/component-page";
+import { commonProps, iconLayoutProps } from "@/components/docs/common-props";
 import type { PropDef } from "@/components/docs/props-table";
 import { componentMetadata } from "@/lib/component-metadata";
 import { highlight } from "@/lib/highlight";
@@ -53,25 +54,40 @@ const props: PropDef[] = [
   },
   {
     name: "value",
-    type: "string | null",
+    type: "string | string[] | null",
     required: true,
-    description: "Title of the currently selected option, or null.",
+    description:
+      "Title of the selected option (single mode), array of titles (multi mode when `allowMultiple` is set), or null.",
   },
   {
     name: "onChange",
-    type: "(value: string | null) => void",
+    type: "(value: string | string[] | null) => void",
     required: true,
-    description: "Called when the selection changes. Tapping a selected option clears it.",
+    description: "Called when the selection changes. Tapping a selected option in single mode clears it.",
   },
   {
-    name: "number",
-    type: "string",
-    description: "Optional leading question number, e.g. \"01\".",
+    name: "allowMultiple",
+    type: "boolean",
+    description:
+      "When true, the component upgrades to multi-select on the second pick. `value` becomes `string[]` and the optional `multiValue` / `onMultiChange` props control the array.",
+  },
+  {
+    name: "suggested",
+    type: "number",
+    description:
+      "Soft-cap hint shown in the footer (\"N suggested\"). Exceeding it tints the count but does not block further selections.",
+  },
+  {
+    name: "max",
+    type: "number",
+    description:
+      "Hard cap on selections in multi-mode. Unselected options dim once the cap is reached.",
   },
   {
     name: "freeformPlaceholder",
-    type: "string",
-    description: "When provided, renders an extra textarea beneath the options.",
+    type: "string | false",
+    description:
+      "Renders an extra textarea beneath the options. Defaults to \"Any extra context…\"; pass `false` to hide.",
   },
   {
     name: "freeformValue",
@@ -83,6 +99,8 @@ const props: PropDef[] = [
     type: "(value: string) => void",
     description: "Controlled setter for the freeform textarea.",
   },
+  ...iconLayoutProps,
+  ...commonProps,
 ];
 
 export default async function SingleSelectPage() {

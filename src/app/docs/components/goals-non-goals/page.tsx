@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { ComponentPage } from "@/components/docs/component-page";
+import { commonProps, numberProp } from "@/components/docs/common-props";
 import type { PropDef } from "@/components/docs/props-table";
 import { componentMetadata } from "@/lib/component-metadata";
 import { highlight } from "@/lib/highlight";
@@ -71,6 +72,8 @@ const props: PropDef[] = [
     type: "number",
     description: "Upper bound on how many rows can be added (default 5).",
   },
+  numberProp,
+  ...commonProps,
 ];
 
 export default async function GoalsNonGoalsPage() {

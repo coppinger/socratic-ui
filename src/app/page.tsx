@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowRightIcon, PencilLine } from "lucide-react";
 
@@ -34,11 +35,42 @@ function GitHubIcon({ className }: { className?: string }) {
   );
 }
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Socratic UI",
+  description:
+    "Structured input components for AI chat interfaces — low-friction elicitation patterns built on shadcn/ui.",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Web",
+  url: "https://socraticui.com",
+  license: "https://opensource.org/licenses/MIT",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  author: {
+    "@type": "Person",
+    name: "Charlie Coppinger",
+    url: "https://github.com/coppinger",
+  },
+  codeRepository: "https://github.com/coppinger/socratic-ui",
+  programmingLanguage: ["TypeScript", "React"],
+};
+
 export default async function LandingPage() {
   const contributors = await getContributors();
 
   return (
     <div className="flex min-h-svh flex-1 flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          // Escape `<` per Next.js JSON-LD guide to neutralize any injected </script>.
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <Link
           href="/"
@@ -83,7 +115,7 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-1 items-center gap-12 px-6 pt-8 pb-24 lg:gap-16">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center gap-12 px-6 pt-8 pb-24 lg:flex-row lg:gap-16">
         {/* Left column — hero */}
         <section className="flex flex-1 flex-col items-start gap-6">
           <a
@@ -153,11 +185,14 @@ export default async function LandingPage() {
                     rel="noreferrer noopener"
                     aria-label={c.login}
                   >
-                    <img
+                    <Image
+                      // GitHub's avatar CDN already serves sized images; skip
+                      // the Next.js optimizer to avoid 20 pass-through requests.
                       src={`${c.avatar_url}&s=64`}
                       alt={c.login}
                       width={32}
                       height={32}
+                      unoptimized
                       className="size-8 rounded-full border-2 border-background transition-transform hover:-translate-y-0.5"
                     />
                   </a>
@@ -173,7 +208,7 @@ export default async function LandingPage() {
         </section>
 
         {/* Right column — app preview */}
-        <div className="hidden w-full max-w-md shrink-0 lg:block">
+        <div className="w-full max-w-md shrink-0">
           <MockChatPreview />
         </div>
       </main>
@@ -201,7 +236,7 @@ export default async function LandingPage() {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://www.buildstory.com/buildstory-logo.svg"
+                src="/buildstory-logo.svg"
                 alt="BuildStory"
                 className="h-4"
               />

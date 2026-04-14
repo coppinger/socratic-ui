@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { ComponentPage } from "@/components/docs/component-page";
+import { commonProps, numberProp } from "@/components/docs/common-props";
 import type { PropDef } from "@/components/docs/props-table";
 import { componentMetadata } from "@/lib/component-metadata";
 import { highlight } from "@/lib/highlight";
@@ -67,16 +68,8 @@ const props: PropDef[] = [
     defaultValue: "\"Thanks — that gives me what I need to dig in.\"",
     description: "Success summary shown when every prompt is answered.",
   },
-  {
-    name: "number",
-    type: "string",
-    description: "Optional leading question number (e.g. \"05\").",
-  },
-  {
-    name: "motion",
-    type: "SocraticMotion",
-    description: "Shared motion config threaded through entrance animations.",
-  },
+  numberProp,
+  ...commonProps,
 ];
 
 export default async function OpenQuestionsPage() {

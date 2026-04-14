@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { type ComponentProps, useCallback, useMemo, useState } from "react";
+import { SlidersHorizontalIcon } from "lucide-react";
 
 import {
   type SocraticMotion,
@@ -11,6 +12,8 @@ import {
 import type { OptionIconSettings } from "@/components/socratic-ui/shared";
 import { MockChat } from "@/components/playground/chat/mock-chat";
 import { Rail } from "@/components/playground/rail/rail";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import {
   type Density,
   getAnyPlaygroundEntry,
@@ -75,6 +78,7 @@ export function PlaygroundClient({
     alignment: "left",
   });
   const [animationNonce, setAnimationNonce] = useState(0);
+  const [mobileRailOpen, setMobileRailOpen] = useState(false);
 
   const entry = useMemo(
     () => getAnyPlaygroundEntry(componentSlug),
@@ -158,29 +162,42 @@ export function PlaygroundClient({
     );
   }
 
+  const railProps: ComponentProps<typeof Rail> = {
+    entry,
+    node,
+    motion,
+    density,
+    optionIcons,
+    componentSlug,
+    scenarioId,
+    onComponentChange: handleComponentChange,
+    onScenarioChange: handleScenarioChange,
+    onNodeChange: setNode,
+    onMotionChange: setMotion,
+    onMotionPresetSelect: handleMotionPresetSelect,
+    onDensityChange: setDensity,
+    onOptionIconsChange: setOptionIcons,
+    onReroll: handleReroll,
+  };
+
   return (
     <div className="flex h-screen w-full flex-col">
-      <PlaygroundHeader />
+      <PlaygroundHeader
+        onOpenMobileRail={() => setMobileRailOpen(true)}
+      />
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-[320px] shrink-0 border-r border-border bg-card md:block">
-          <Rail
-            entry={entry}
-            node={node}
-            motion={motion}
-            density={density}
-            optionIcons={optionIcons}
-            componentSlug={componentSlug}
-            scenarioId={scenarioId}
-            onComponentChange={handleComponentChange}
-            onScenarioChange={handleScenarioChange}
-            onNodeChange={setNode}
-            onMotionChange={setMotion}
-            onMotionPresetSelect={handleMotionPresetSelect}
-            onDensityChange={setDensity}
-            onOptionIconsChange={setOptionIcons}
-            onReroll={handleReroll}
-          />
+          <Rail {...railProps} />
         </aside>
+
+        {/* Mobile rail sheet */}
+        <Sheet open={mobileRailOpen} onOpenChange={setMobileRailOpen}>
+          <SheetContent side="left" className="w-[320px] p-0 md:hidden">
+            <SheetTitle className="sr-only">Playground controls</SheetTitle>
+            <Rail {...railProps} />
+          </SheetContent>
+        </Sheet>
+
         <WorkbenchCanvas>
           <MockChat
             key={`${componentSlug}:${scenarioId}`}
@@ -238,10 +255,23 @@ function WorkbenchCanvas({ children }: { children: React.ReactNode }) {
 
 // Hoisted out of `PlaygroundClient` so it doesn't re-render on every
 // motion-slider drag in the parent.
-function PlaygroundHeader() {
+function PlaygroundHeader({
+  onOpenMobileRail,
+}: {
+  onOpenMobileRail: () => void;
+}) {
   const count = getPlaygroundEntries().length;
   return (
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-border bg-background/80 px-4 backdrop-blur">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        className="md:hidden"
+        onClick={onOpenMobileRail}
+        aria-label="Open playground controls"
+      >
+        <SlidersHorizontalIcon className="size-4" />
+      </Button>
       <Link
         href="/"
         className="flex items-center gap-2 text-sm font-semibold tracking-tight"
