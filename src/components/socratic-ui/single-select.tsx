@@ -294,13 +294,16 @@ function FreeformRow({
   // props shape once so the input can adopt them directly — the hook only
   // calls `.focus()` on the stored ref, which works on any `HTMLElement`.
   const inputRowProps =
-    rowProps as unknown as RovingFocusItemProps<HTMLInputElement>;
+    rowProps as unknown as RovingFocusItemProps<HTMLTextAreaElement>;
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Home/End must keep editing the typed text — don't let the roving
-    // hook hijack them as list-jump shortcuts. Arrow keys and Enter still
-    // bubble through so the cursor can leave the freeform row.
+    // hook hijack them as list-jump shortcuts. Plain Enter must insert a
+    // newline inside the textarea (⌘Enter still submits at the sequence
+    // level). Arrow keys still bubble through so the cursor can leave the
+    // freeform row.
     if (event.key === "Home" || event.key === "End") return;
+    if (event.key === "Enter" && !event.metaKey && !event.ctrlKey) return;
     inputRowProps.onKeyDown(event);
   };
 
@@ -308,7 +311,7 @@ function FreeformRow({
     <div
       data-freeform="true"
       className={cn(
-        "group flex w-full items-center gap-3 rounded-lg bg-muted/60 px-3 py-3 text-left transition-colors",
+        "group flex w-full items-start gap-3 rounded-lg bg-muted/60 px-3 py-3 text-left transition-colors",
       )}
     >
       <span
@@ -317,16 +320,16 @@ function FreeformRow({
       >
         <PencilLine className="size-3.5" />
       </span>
-      <input
+      <textarea
         {...inputRowProps}
         onKeyDown={handleKeyDown}
-        type="text"
+        rows={1}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
         className={cn(
-          "min-w-0 flex-1 border-0 bg-transparent text-sm font-medium text-foreground outline-hidden",
+          "field-sizing-content min-w-0 flex-1 resize-none border-0 bg-transparent py-[3px] text-sm font-medium leading-6 text-foreground outline-hidden",
           "placeholder:text-sm placeholder:font-normal placeholder:text-muted-foreground",
         )}
       />
